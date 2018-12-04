@@ -11,6 +11,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import qm
 
+import matplotlib.pyplot as plt  
+import numpy as np               
+from IPython.core.display import display, HTML 
+from arc import * 
+
 class atom:
     def isNaN(num):
         return num != num
