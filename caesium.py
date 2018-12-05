@@ -11,10 +11,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import qm
 
-import matplotlib.pyplot as plt  
-import numpy as np               
-from IPython.core.display import display, HTML 
-from arc import * 
 
 class atom:
     def isNaN(num):
@@ -22,7 +18,7 @@ class atom:
     
     def GetFactors(laser_wl, transition_ident, file):
         df = pd.read_csv(file, delimiter=";")
-        df.columns = ['wavelength', 'unc', 'wavenumber', "Int","D","J","Jn",'decaywidth', 'lowerlevel', 'upperlevel',"",""]
+        df.columns = ['wavelength', 'unc', 'wavenumber', "Int","DQ","D","J","Jn",'decaywidth', 'lowerlevel', 'upperlevel',"",""]
         #levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
         levels = [transition_ident]
         for level in levels:
