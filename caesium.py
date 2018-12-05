@@ -39,6 +39,7 @@ class atom:
                     scatt_factor = qm.QM.ScattPrefactor(laser_wl, width, wl * 10**-10)
                     tot_scatt_factor += scatt_factor
                     tot_pot_factor += pot_factor
+            #print(level, c, "lower levels")
                     #print(row["lowerlevel"],wl, width, pot_factor)
                     
             #Resonances downwards
@@ -48,11 +49,11 @@ class atom:
                     c+=1
                     width = float(row["decaywidth"])
                     wl = float(row["wavelength"])
-                    pot_factor = qm.QM.PotPrefactor(laser_wl, width, wl * 10**-10)
+                    pot_factor = -qm.QM.PotPrefactor(laser_wl, width, wl * 10**-10) ## add with minus to account for stark energy shift in opposite direction
                     scatt_factor = qm.QM.ScattPrefactor(laser_wl, width, wl * 10**-10)
                     tot_scatt_factor += scatt_factor
                     tot_pot_factor += pot_factor                    
-
+            #print(level, c, "upper levels")
             
             return [tot_pot_factor, tot_scatt_factor]
                 
