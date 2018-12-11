@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import os
+import pandas as pd
 
 #config
 lambdals = [532, 755, 880, 1064, 1535]

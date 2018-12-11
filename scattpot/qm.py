@@ -2,7 +2,7 @@
 import math
 
 c = 2.997*10**8
-
+hbar = 1.054571*10**(-34)
 
 class QM:
     
@@ -11,12 +11,12 @@ class QM:
     def PotPrefactor(laser_wl, transition_gamma, transition_wl):
         transition_freq = c* 2*math.pi/transition_wl
         laser_freq = c* 2*math.pi/laser_wl
-        return -(3*math.pi*c**2)/(2*(transition_freq**3))*(transition_gamma/(transition_freq-laser_freq)-transition_gamma/(transition_freq+laser_freq))
+        return -(3*math.pi*c**2)/(2*(transition_freq**3))*(transition_gamma/(transition_freq-laser_freq)+transition_gamma/(transition_freq+laser_freq))
 
     def ScattPrefactor(laser_wl, transition_gamma, transition_wl):
         transition_freq = c*2*math.pi/transition_wl
         laser_freq = c*2*math.pi/laser_wl
-        return (3*math.pi*c**2)/(2*(transition_freq**3))*(transition_gamma/(transition_freq-laser_freq)-transition_gamma/(transition_freq+laser_freq))**2
+        return (3*math.pi*c**2)/(2*hbar*(transition_freq**3))*(laser_freq/transition_freq)**3 * (transition_gamma/(transition_freq-laser_freq)+transition_gamma/(transition_freq+laser_freq))**2
 		
         
         
