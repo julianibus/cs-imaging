@@ -24,6 +24,7 @@ c = 2.997*10**8
 hbar = 1.054571*10**(-34)
 
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
+steadystates = []
 #decaywleff = {"6s 2 S 1/2": 455.5*10**(-9)*1.84+894.3*10**(-9)*28.6+852.1*10**(-9)*32.8, "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"}
 columns = ['laser wavelength','level', 'pot', 'scatt']
 newdf = pd.DataFrame(columns=columns)
