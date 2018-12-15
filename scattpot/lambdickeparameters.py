@@ -22,6 +22,22 @@ m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
 c = 2.997*10**8
 hbar = 1.054571*10**(-34)
+cs = caesium.atom()
+
+#decay rates
+g23 = 4.05*10**6
+g34 = 6.23*10**6
+g35 = 11.4*10**6
+g41 = 28.6*10**6
+g26 = 0.13*10**6
+g27 = 1.10*10**6
+g75 = 0.78*10**6
+g65 = 0.11*10**6
+g51 = 32.8*10**6
+g64 = 0.91*10**6
+g21 = 1.84*10**6
+########
+
 
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 steadystates = []
@@ -29,9 +45,8 @@ steadystates = []
 columns = ['laser wavelength','level', 'pot', 'scatt']
 newdf = pd.DataFrame(columns=columns)
 
-intensities = 10**(np.linspace(6,10, num=1000)) #1/m^^2
-print (intensities)
-exit(0)
+intensities = 10**(np.linspace(6,12, num=1000)) #1/m^^2
+
 for lambdal in lambdals:
     
     
@@ -39,7 +54,7 @@ for lambdal in lambdals:
         
         pots = list()
         scatts = list()
-        pot, scatt = caesium.atom.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+        pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
         
         row = {'laser wavelength':lambdal,'level': level, 'pot': pot, 'scatt': scatt}
         newdf.loc[len(newdf)] = row
@@ -49,16 +64,17 @@ for lambdal in lambdals:
         for inten in intensities:
             omega = math.sqrt(pot*inten/m)*2 *math.pi /(lambdal * 10**(-9))
             omegas.append(omega)
-        #for inten in intensities:
-        #    lambdicke = math.sqrt((hbar*(2*math.pi)/(decaywleff["level"])) /(hbar * omega))
-        #    lambdickes.append(lambdicke)
-        plt.loglog(intensities*10**(-1), omegas,"-o", marker=",", label=level) ##concvert so that xaxis is in mW/cm^2
+        for inten in intensities:
+            omega = math.sqrt(pot*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+            lambdicke = math.sqrt((hbar*(2*math.pi)/(1000*10**(-9))) /(hbar * omega))
+            lambdickes.append(lambdicke)
+        plt.loglog(intensities*10**(-1), lambdickes,"-o", marker=",", label=level) ##concvert so that xaxis is in mW/cm^2
         
     plt.title(str(lambdal) + "nm")
-    plt.xlabel("Intensity (mW/cm²)")
+    plt.xlabel("Intensity (mW/cm2)")
     plt.ylabel("H.O. Frequency (1/s)")
     plt.legend(loc='upper left');
         
         
-        
+plt.show()        
 newdf.to_csv(output, sep=";", index=False)
