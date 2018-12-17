@@ -16,6 +16,7 @@ import pandas as pd
 lambdals = [532, 755, 880, 1064, 1535]
 output = "532.csv"
 
+cs = caesium.atom()
 
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 columns = ['laser wavelength','level', 'pot', 'scatt']
@@ -24,7 +25,7 @@ for lambdal in lambdals:
     for level in levels:
         pots = list()
         scatts = list()
-        pot, scatt = caesium.atom.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+        pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
         row = {'laser wavelength':lambdal,'level': level, 'pot': pot, 'scatt': scatt}
         newdf.loc[len(newdf)] = row
         
