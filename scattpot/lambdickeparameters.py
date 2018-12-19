@@ -140,3 +140,19 @@ for lambdal in lambdals:
     plt.savefig("LD" + str(lambdal) + ".png")
 plt.show()        
 newdf.to_csv(output, sep=";", index=False)
+
+
+
+### APPENDIX create list for specifric intensity
+
+lambdal = 532
+inten = 10**7
+for level in levels:
+        #098765', '#000009'
+    pots = list()
+    scatts = list()
+    pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+
+    omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+    omegas.append(omega)
+            
