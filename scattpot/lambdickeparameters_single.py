@@ -15,7 +15,7 @@ import pandas as pd
 import math
 
 #config
-lambdals = [532, 755, 880, 1064, 1535]
+lambdals = [532]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
@@ -61,13 +61,12 @@ levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2
 columns = ['laser wavelength','level', 'pot', 'scatt']
 newdf = pd.DataFrame(columns=columns)
 
-intensities = 10**(np.linspace(6,9, num=30)) #1/m^^2 ##LATTICE INTENSITY
+intensities = [10**7] #1/m^^2 ##LATTICE INTENSITY
 fig, ax = plt.subplots()
 ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
 
 for lambdal in lambdals:
     plt.clf()
-    print(lambdal)
     c = -1
     for level in levels:
         c = c + 1
@@ -82,21 +81,9 @@ for lambdal in lambdals:
         lambdickes = list()
         for inten in intensities:
             omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
-            omegas.append(omega)
+            print(omega)
+                
             
-        if (pot > 0):
-            plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c]) ##concert so that xaxis is in mW/cm^2
-        else: 
-            plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], linestyle = "--") 
-            
-        
-    plt.title(str(lambdal) + "nm")
-    plt.xlabel("Lattice Beam Intensity (W/m^2)")
-    plt.xlim(10**6,10**9)
-    plt.ylabel("H.O. Frequency (1/s)")
-    plt.legend(loc=4, prop={'size': 10})
-    plt.grid(b=True, which='both', color='0.65', linestyle='-')
-    plt.savefig("HO" + str(lambdal) + ".png")
 
 l21 = 455.5 * 10**-9 
 l23 = 2931.8 * 10**-9 
@@ -118,9 +105,8 @@ for lambdal in lambdals:
     plt.clf()
     fig, ax = plt.subplots()
     ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
-    print(lambdal)
     
-    for decayi in range(1,len(decays)):
+    for decayi in range(0,len(decays)):
 
         lambdickes = list()
         for inten in intensities:
@@ -129,17 +115,9 @@ for lambdal in lambdals:
             #if (pot < 0): omega = omega*(-1) #dont negate here as sign not important for calculating the lamb dicke parameter
             ELatRec = ((hbar*(2*math.pi)/(decays[decayi]))**2)/(2*m)
             lambdicke = math.sqrt(ELatRec /(hbar * omega))
-            lambdickes.append(lambdicke)
+            print(lambdicke)
             
-        plt.loglog(intensities, lambdickes,"-o", marker=",", label=decaylabels[decayi]) ##concert so that xaxis is in mW/cm^2
-     
-    plt.title(str(lambdal) + "nm")
-    plt.xlabel("Lattice Beam Intensity (W/m^2)")
-    plt.ylabel("Lamb-Dicke Parameter")
-    plt.xlim(10**6,10**9)
-    plt.legend(loc=3, prop={'size': 10})
-    plt.grid(b=True, which='both', color='0.65', linestyle='-') 
-    plt.savefig("LD" + str(lambdal) + ".png")
+
 plt.show()        
 newdf.to_csv(output, sep=";", index=False)
 
