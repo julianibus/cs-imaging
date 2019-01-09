@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 14 15:50:24 2018
-
-@author: J.Wienand
-"""
-
-
 import caesium
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +7,7 @@ import pandas as pd
 import math
 
 #config
-lambdals = [532]
+lambdals = [532, 755, 880, 1064, 1535]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
@@ -41,7 +33,7 @@ l21 = 455.5 * 10**-9
 l23 = 2931.8 * 10**-9 
 l35 = 1469.9  * 10**-9 
 l41 = 894.3  * 10**-9 
-l64 = 3011.1  * 10#098765', '#000009'**-9 
+l64 = 3011.1  * 10**-9#098765', '#000009'**-9 
 l51 = 852.1 * 10**-9
 l65 = 3614.1  * 10**-9 
 l75 = 3491  * 10**-9 
@@ -49,77 +41,44 @@ l27 = 1360.6  * 10**-9
 l26 = 1342.8  * 10**-9 
 l34 = 1359.2 * 10**-9 
 #########
-
-
-#ss = [0.25420717,0.25407444, 0.0583665 , 0.01374444, 0.02891531, 0.03238204, 0.35831011] #STEADY STATES from boch equations @saturation
-#in ss: only account for "incoming" transitions= excite up or decay down
-
-#decaywleff = {"6s 2 S 1/2": (l41*g41*ss[0]+l21*g21*ss[1]+l51*g51*ss[4])/(g41*ss[0]+g21*ss[1]+g51*ss[4]), "7p 2 P ?3/2": l21, "7s 2 S 1/2": l23, "6p 2 P ?1/2": (l34*g34*ss[2]+l64*g64*ss[5])/(g34*ss[2]+g64*ss[5]), "6p 2 P ?3/2": (l75*g75*ss[6]+l65*g65*ss[5])/(g75*ss[6]+ g65*ss[5]), "5d 2 D 3/2": l26, "5d 2 D 5/2": l27}
-
-levellabels = ["|1> 6s 2 S 1/2", "|2> 7p 2 P ?3/2", "|3> 7s 2 S 1/2", "|4> 6p 2 P ?1/2", "|5> 6p 2 P ?3/2", "|6> 5d 2 D 3/2", "|7> 5d 2 D 5/2"]
-levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
-columns = ['laser wavelength','level', 'pot', 'scatt']
-newdf = pd.DataFrame(columns=columns)
-
-intensities = [10**7] #1/m^^2 ##LATTICE INTENSITY
-fig, ax = plt.subplots()
-ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
-
-for lambdal in lambdals:
-    plt.clf()
-    c = -1
-    for level in levels:
-        c = c + 1
-        #098765', '#000009'
-        pots = list()
-        scatts = list()
-        pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
-        row = {'laser wavelength':lambdal,'level': level, 'pot': pot, 'scatt': scatt}
-        newdf.loc[len(newdf)] = row
-        
-        omegas = list()
-        lambdickes = list()
-        for inten in intensities:
-            omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
-            print(omega)
-                
-            
-
-l21 = 455.5 * 10**-9 
-l23 = 2931.8 * 10**-9 
-l35 = 1469.9  * 10**-9 
-l41 = 894.3  * 10**-9 
-l64 = 3011.1  * 10**-9 
-l51 = 852.1 * 10**-9
-l65 = 3614.1  * 10**-9 
-l75 = 3491  * 10**-9 
-l27 = 1360.6  * 10**-9 
-l26 = 1342.8  * 10**-9 
-l34 = 1359.2 * 10**-9 
 decaylabels = ["|2> -> |1>", "|2> -> |3>", "|3> -> |5>", "|4> -> |1>", "|6> -> |4>", "|5> -> |1>", "|6> -> |5>", "|7> -> |5>", "|2> -> |7>", "|2> -> |6>", "|3> -> |4>"]
 decays = [l21, l23, l35, l41, l64, l51, l65, l75, l27, l26, l34]
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 decaylevels = ["6s 2 S 1/2", "7s 2 S 1/2","6p 2 P ?3/2", "6s 2 S 1/2", "6p 2 P ?1/2","6s 2 S 1/2", "6p 2 P ?3/2", "6p 2 P ?3/2", "5d 2 D 5/2","5d 2 D 3/2", "6p 2 P ?1/2"]
 
-for lambdal in lambdals:
-    plt.clf()
-    fig, ax = plt.subplots()
-    ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
+lambdal = 532
+inten = 10**7
+
+omegas = list()
+lambdickes = list()
+latticedepths1 = list() # in hbar omega
+latticedepths2 = list() # in lattice recoil energies
+for level in levels:
+        #098765', '#000009'
+    pots = list()
+    scatts = list()
+    pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+
+    omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+    omegas.append(omega)
     
-    for decayi in range(0,len(decays)):
+    latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
+    latticedepths1.append(latticedepth1)
 
-        lambdickes = list()
-        for inten in intensities:
-            pot, scatt = cs.GetFactors(lambdal*10**-9, decaylevels[decayi], "transitions_complemented.csv")
-            omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
-            #if (pot < 0): omega = omega*(-1) #dont negate here as sign not important for calculating the lamb dicke parameter
-            ELatRec = ((hbar*(2*math.pi)/(decays[decayi]))**2)/(2*m)
-            lambdicke = math.sqrt(ELatRec /(hbar * omega))
-            print(lambdicke)
+
+
+    
+for decayi in range(0,len(decays)):
+    pot, scatt = cs.GetFactors(lambdal*10**-9, decaylevels[decayi], "transitions_complemented.csv")
+    omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+    #if (pot < 0): omega = omega*(-1) #dont negate here as sign not important for calculating the lamb dicke parameter
+    ELatRec = ((hbar*(2*math.pi)/(decays[decayi]))**2)/(2*m)
+    lambdicke = math.sqrt(ELatRec /(hbar * omega))
+    lambdickes.append(lambdicke)
+    latticedepth2 = (math.fabs(pot)*inten)/(ELatRec)
+    latticedepths2.append(latticedepth2)
             
-
-plt.show()        
-newdf.to_csv(output, sep=";", index=False)
-
-
-
+print(omegas)
+print(lambdickes)
+print(latticedepths1)
+print(latticedepths2)
