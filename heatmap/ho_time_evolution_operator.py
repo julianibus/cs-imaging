@@ -35,13 +35,14 @@ g21 = 1.84*10**6;
 
 gammas = [g21, g23, g35, g41, g64, g51, g65, g75, g27, g26, g34]
 gammaslabel = ["g21","g23", "g35", "g41", "g64", "g51", "g65", "g75", "g27", "g26", "g34"]
+overlaps = list()
 
 def psix(x,n,omega):
-    return 1/(np.sqrt(2**n*math.factorial(n)))*((m*omega)/(np.pi*hbar))**(1/4)*np.exp((-m*omega*x**2)/(2*hbar))*scipy.special.eval_hermite(n, np.sqrt((m*omega)/hbar)*x)
+    expression = 1/(np.sqrt(2**n*factorial(n)))*((m*omega)/(np.pi*hbar))**(1/4)*np.exp((-m*omega*x**2)/(2*hbar))*scipy.special.eval_hermite(n, np.sqrt((m*omega)/hbar)*x)
+    return expression/LA.norm(expression)
 
-
-xstep = 0.1 * 10**(-7)
-x = np.arange(-10**(-6), +10**(-6), xstep)
+xstep = 0.2 * 10**(-8)
+x = np.arange(-0.2*10**(-6), +0.2*10**(-6), xstep)
 X,Y = np.meshgrid(x,x)
 top = toeplitz(np.concatenate([[-2,1], np.zeros(int(len(x)-2))]))
 top[0,len(x)-1] = 1
@@ -58,26 +59,41 @@ def psit(psip,ta, omegat):
     #Pin = np.linalg.inv(P)
     #EB = np.dot(Pin,np.dot(EA,P))
     EB = expm(B)
-    #plt.imshow((np.imag(Ut)),norm = LogNorm())
     res = np.dot(EB,psip)
+	#print (initial_evol, final)
+    ns = np.arange(0,16)
+    overlap = list()
+    for k in ns:
+		overlap.append(np.dot(psix(x,k,1473283),res))
+    overlaps.append(overlap)
+	
     #print(mat)
     return res
 
-initial = psix(x,2,200000)
+initial = psix(x,5,1473283)
 
 tstart = 0.1*10**(-9)
-tstop = 4000*10**(-9)
-tstep = 800*10**(-9)
+tstop = 15000*10**(-9)
+tstep = 180*10**(-9)
 
 timevol = list()
 T = np.arange(tstart, tstop, tstep)
 for td in np.arange(tstart, tstop, tstep):
    # print ("hey")
     print (td)
-    timevol.append(psit(initial, td, 400000))
+    timevol.append(psit(initial, td,2109134))
     #print (psit(cpsi, td, 2*10**5))
     #print (tstep*psit(cpsi, td, 2*10**5))
-    
+
+plt.figure(200)
 plt.imshow(np.real(np.square(np.absolute(timevol))))
 plt.axes().set_aspect("auto")
+plt.show()
+plt.figure(300)
+print (np.square(np.abs(overlaps)))
+lines = plt.plot(T, np.square(np.abs(overlaps)))
+plt.axes().set_aspect("auto")
+plt.legend(lines[:len(lines)], np.arange(0,len(lines),1))
+plt.ylabel("Overlap")
+plt.xlabel("Time (s)")
 plt.show()
