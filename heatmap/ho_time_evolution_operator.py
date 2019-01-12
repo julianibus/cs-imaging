@@ -49,9 +49,9 @@ top[len(x)-1,0] = 1
 top = top/(xstep**2)
 print(top)
 
-def psit(psip,t, omega):
-    Ht = (-((hbar**2)/(2*m))*top + 0.5*m*omega**2 *np.square(np.diag(x)))#-((hbar**2)/(2*m))*top +
-    B = (-1j/hbar)*Ht*t
+def psit(psip,ta, omegat):
+    Ht = (-((hbar**2)/(2*m))*top +0.5*m*omegat*np.abs(omegat) *np.square(np.diag(x)))#-((hbar**2)/(2*m))*top +
+    B = (-1j/hbar)*Ht*ta
     #w, P = LA.eig(B)
     #A = np.diag(w)
     #EA = expm(A)
@@ -63,20 +63,21 @@ def psit(psip,t, omega):
     #print(mat)
     return res
 
-initial = psix(x,7,10**5)
+initial = psix(x,2,200000)
 
 tstart = 0.1*10**(-9)
-tstop = 10000*10**(-9)
-tstep = 600*10**(-9)
+tstop = 4000*10**(-9)
+tstep = 800*10**(-9)
 
 timevol = list()
 T = np.arange(tstart, tstop, tstep)
 for td in np.arange(tstart, tstop, tstep):
    # print ("hey")
-    timevol.append(psit(initial, td, 2*10**5))
+    print (td)
+    timevol.append(psit(initial, td, 400000))
     #print (psit(cpsi, td, 2*10**5))
     #print (tstep*psit(cpsi, td, 2*10**5))
     
 plt.imshow(np.real(np.square(np.absolute(timevol))))
 plt.axes().set_aspect("auto")
-
+plt.show()

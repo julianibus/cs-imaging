@@ -24,7 +24,7 @@ class atom:
     
     def GetFactors(self, laser_wl, transition_ident, file):
         df = pd.read_csv(file, delimiter=";")
-        df.columns = ['wavelength', 'unc', 'wavenumber', "Int","DQ","D","J","Jn",'decaywidth', 'lowerlevel', 'upperlevel',"",""]
+        df.columns = ['wavelength', 'unc', 'wavenumber', "Int","DQ","D","J","Jn",'decaywidth', 'lowerlevel', 'upperlevel',"hu","ha"]
         #levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
         levels = [transition_ident]
         for level in levels:
