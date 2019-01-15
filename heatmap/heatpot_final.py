@@ -26,7 +26,7 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 40
+nmax = 15
 lambdal = 880
 inten = 5*10**8
 xstep = 0.25  * 10**(-8)
@@ -131,7 +131,7 @@ top[len(x)-1,0] = 1
 top = top/(xstep**2)
 
 def psit(psip,t, omegat):
-    Ht = (-((hbar**2)/(2*m))*top -0.5*m*omegat*np.abs(omegat)*np.square(np.diag(x)))#-((hbar**2)/(2*m))*top +
+    Ht = (-((hbar**2)/(2*m))*top +0.5*m*omegat*np.abs(omegat)*np.square(np.diag(x)))#-((hbar**2)/(2*m))*top +
     B = (-1j/hbar)*Ht*t
     #w, P = LA.eig(B)N = np.arange(0,nmax,1)
     #A = np.diag(w)
@@ -197,47 +197,52 @@ def IntU(omega, omegat, ti):
 #print (omegas[1], omegas[5], 1/g65)
 #U65 = IntU(omegas[1], omegas[5], (1/g65)) 
 #np.savetxt("U65.csv", np.square(np.abs(U65)), delimiter=",")
+    
+def eff_decay_time(tau, omeg):
+    if (omeg > 0):
+        breathing = (2 * math.pi/((omeg)) / 2)
+        redped = tau % (2 * math.pi/((omeg)) / 2)
+        if (tau > (breathing/2)):
+            return breathing - redped
+        else:
+            return redped
+    else:
+        return tau        
 
 print("7/11")
-U65 = IntU(omegas[1], omegas[6], (2 * math.pi/((omegas[6])) / 2)-(1/g65)% (2 * math.pi/((omegas[6])) / 2))
+U65 = IntU(omegas[1], omegas[6], eff_decay_time(1/g65, omegas[6]))
 np.savetxt("U65.csv", np.square(np.abs(np.copy(U65))), delimiter=",")
-
 print("1/11")
-U21 = IntU(omegas[1], omegas[2], (1/g21) % (2 * math.pi/((omegas[2])) / 2))
+U21 = IntU(omegas[1], omegas[2], eff_decay_time(1/g21, omegas[2]))
 np.savetxt("U21.csv", np.square(np.abs(np.copy(U21))), delimiter=",")
 print("2/11")
-U23 = IntU(omegas[1], omegas[2], (1/g23)% (2 * math.pi/((omegas[2])) / 2))
+U23 = IntU(omegas[1], omegas[2], eff_decay_time(1/g23, omegas[2]))
 np.savetxt("U23.csv", np.square(np.abs(np.copy(U23))), delimiter=",")
 print("3/11")
-U35 = IntU(omegas[1], omegas[3], (1/g35)% (2 * math.pi/((omegas[3])) / 2))
+U35 = IntU(omegas[1], omegas[3], eff_decay_time(1/g35, omegas[3]))
 np.savetxt("U35.csv", np.square(np.abs(np.copy(U35))), delimiter=",")
 print("4/11")
-U41 = IntU(omegas[1], omegas[4], (1/g41)% (2 * math.pi/((omegas[4])) / 2))  
-np.savetxt("U41.csv", np.square(np.abs(U41)), delimiter=",")
+U41 = IntU(omegas[1], omegas[4], eff_decay_time(1/g41, omegas[4]))  
+np.savetxt("U41.csv", np.square(np.abs(np.copy(U41))), delimiter=",")
 print("5/11")
-U64 = IntU(omegas[1], omegas[6], (1/g64)% (2 * math.pi/((omegas[6])) / 2)) 
+U64 = IntU(omegas[1], omegas[6], eff_decay_time(1/g64, omegas[6])) 
 np.savetxt("U64.csv", np.square(np.abs(np.copy(U64))), delimiter=",")
 print("6/11")
-U51 = IntU(omegas[1], omegas[5], (1/g51)% (2 * math.pi/((omegas[5])) / 2))
-np.savetxt("U51.csv", np.square(np.abs(U51)), delimiter=",")
+U51 = IntU(omegas[1], omegas[5], eff_decay_time(1/g51, omegas[5]))
+np.savetxt("U51.csv", np.square(np.abs(np.copy(U51))), delimiter=",")
 print("8/11")
-U75 = IntU(omegas[1], omegas[7], (1/g75)% (2 * math.pi/((omegas[7])) / 2))
+U75 = IntU(omegas[1], omegas[7], eff_decay_time(1/g75, omegas[7]))
 np.savetxt("U75.csv", np.square(np.abs(np.copy(U75))), delimiter=",")
 print("9/11")
-U27 = IntU(omegas[1], omegas[2], (1/g27)% (2 * math.pi/((omegas[2])) / 2))
+U27 = IntU(omegas[1], omegas[2],eff_decay_time(1/g27, omegas[2]))
 np.savetxt("U27.csv", np.square(np.abs(np.copy(U27))), delimiter=",")
 print("10/11")
-U26 = IntU(omegas[1], omegas[2], (1/g26)% (2 * math.pi/((omegas[2])) / 2))
+U26 = IntU(omegas[1], omegas[2], eff_decay_time(1/g26, omegas[2]))
 np.savetxt("U26.csv", np.square(np.abs(np.copy(U26))), delimiter=",")
-print("64",np.square(np.abs(U64[1])))
 print("11/11")
-U34 = IntU(omegas[1], omegas[3], (1/g34)% (2 * math.pi/((omegas[3])) / 2))
+U34 = IntU(omegas[1], omegas[3], eff_decay_time(1/g34, omegas[3]))
 np.savetxt("U34.csv", np.square(np.abs(np.copy(U34))), delimiter=",")
-print("34",np.square(np.abs(U34[1])))
 
-print(np.square(np.abs(U65[1])))
-print(np.square(np.abs(U64[1])))
- 
 
 D12 = IntD(etas[1])
 D21 = IntDr(etas[1])
@@ -282,10 +287,3 @@ pathF = np.dot(D21,np.dot(U21,D12))#(*7p3/2 \[Rule] 6s1/2*)
 np.savetxt("F.csv", np.square(np.abs(pathF)), delimiter=",")
 
 
-print pathA[0]
-print pathA[1]
-print pathA[2]
-print pathA[3]
-print pathA[4]
-print pathA[5]
-print pathA[6]
