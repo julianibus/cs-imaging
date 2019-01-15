@@ -156,14 +156,16 @@ def IntDr(eta):
 	return D
 	
 def IntD(eta):
-	N = np.arange(0,nmax,1)
-	NT = np.arange(0,nmax,1)
-	D = np.zeros((nmax, nmax),dtype=complex)
-	for n in N:
-		for nt in NT:
-			D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(0))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(0))**2)*np.exp(-0.5*(eta*np.cos(0))**2)
+    N = np.arange(0,nmax,1)
+    NT = np.arange(0,nmax,1)
+    D = np.zeros((nmax, nmax),dtype=complex)
+    for n in N:
+	    for nt in NT:
+	        D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(0))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(0))**2)*np.exp(-0.5*(eta*np.cos(0))**2)
+    for n in N:
+        D[n] = D[n]/LA.norm(D[n]) #fake normalization
 	
-	return D
+    return D
 	
 #tstart = 0.1*10**(-9)
 #tstop = 1000*10**(-9)
@@ -191,6 +193,8 @@ def IntU(omega, omegat, ti):
         print (nl)
         for ntl in NT:
             U[nl,ntl] = Unn(nl,ntl, omega , omegat, ti)
+    for nl in N:
+        U[nl] = U[nl]/LA.norm(U[nl])
     
     return np.copy(U)
 	
@@ -243,7 +247,7 @@ print("11/11")
 U34 = IntU(omegas[1], omegas[3], eff_decay_time(np.log(2)/g34, omegas[3]))
 np.savetxt("U34.csv", np.square(np.abs(np.copy(U34))), delimiter=",")
 
-
+#Blue Imaging
 D12 = IntD(etas[1])
 D21 = IntDr(etas[1])
 D23 = IntDr(etas[2])
@@ -256,7 +260,6 @@ D75 = IntDr(etas[8])
 D27 = IntDr(etas[9])
 D26 = IntDr(etas[10])
 D34 = IntDr(etas[11])
-
 np.savetxt("D12.csv", np.square(np.abs(D12)), delimiter=",")
 np.savetxt("D21.csv", np.square(np.abs(D21)), delimiter=",")
 np.savetxt("D23.csv", np.square(np.abs(D23)), delimiter=",")
@@ -269,6 +272,9 @@ np.savetxt("D75.csv", np.square(np.abs(D75)), delimiter=",")
 np.savetxt("D27.csv", np.square(np.abs(D27)), delimiter=",")
 np.savetxt("D26.csv", np.square(np.abs(D26)), delimiter=",")
 np.savetxt("D34.csv", np.square(np.abs(D34)), delimiter=",")
+#RedImaging
+D15 = IntD(etas[6])
+np.savetxt("D15.csv", np.square(np.abs(D15)), delimiter=",")
 
 print(np.square(np.abs(U65[1])))
 print(np.square(np.abs(U64[1])))
@@ -285,5 +291,7 @@ pathE = np.dot(D51,np.dot(U51,np.dot(D75,np.dot(U75,np.dot(D27,np.dot(U27,D12)))
 np.savetxt("E.csv", np.square(np.abs(pathE)), delimiter=",")
 pathF = np.dot(D21,np.dot(U21,D12))#(*7p3/2 \[Rule] 6s1/2*)
 np.savetxt("F.csv", np.square(np.abs(pathF)), delimiter=",")
+pathR = np.dot(D51,np.dot(U51,D15))#RED IMAGING 6p3/2 
+np.savetxt("R.csv", np.square(np.abs(pathR)), delimiter=",")
 
 
