@@ -41,7 +41,7 @@ def psix(x,n,omega):
     expression = 1/(np.sqrt(2**n*factorial(n)))*((m*omega)/(np.pi*hbar))**(1/4)*np.exp((-m*omega*x**2)/(2*hbar))*scipy.special.eval_hermite(n, np.sqrt((m*omega)/hbar)*x)
     return expression/LA.norm(expression)
 
-xstep = 0.3 * 10**(-8)
+xstep = 0.25 * 10**(-8)
 x = np.arange(-0.4*10**(-6), +0.4*10**(-6), xstep)
 X,Y = np.meshgrid(x,x)
 top = toeplitz(np.concatenate([[-2,1], np.zeros(int(len(x)-2))]))
@@ -64,13 +64,13 @@ def psit(psip,ta, omegat):
     ns = np.arange(0,16)
     overlap = list()
     for k in ns:
-		overlap.append(np.dot(psix(x,k,1473283),res))
+        overlap.append(np.dot(psix(x,k,9473238),res))
     overlaps.append(overlap)
 	
     #print(mat)
     return res
 
-initial = psix(x,13 ,1473283)
+initial = psix(x,6 ,9473238)
 
 tstart = 0.1*10**(-9)
 tstop = 10000*10**(-9)
@@ -86,7 +86,7 @@ for td in np.arange(tstart, tstop, tstep):
     #print (tstep*psit(cpsi, td, 2*10**5))
 
 plt.figure(200)
-plt.imshow(np.real(timevol))
+plt.imshow(np.square(np.abs(timevol)))
 plt.axes().set_aspect("auto")
 plt.show()
 plt.figure(300)

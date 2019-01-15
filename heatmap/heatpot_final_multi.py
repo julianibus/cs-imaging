@@ -26,7 +26,7 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 15
+nmax = 9
 lambdal = 880
 ### INTENSITY MULTI ######
 xstep = 0.25  * 10**(-8)
@@ -73,7 +73,11 @@ levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2
 decaylevels = ["6s 2 S 1/2", "7s 2 S 1/2","6p 2 P ?3/2", "6s 2 S 1/2", "6p 2 P ?1/2","6s 2 S 1/2", "6p 2 P ?3/2", "6p 2 P ?3/2", "5d 2 D 5/2","5d 2 D 3/2", "6p 2 P ?1/2"]
 gammas = [g21, g23, g35, g41, g64, g51, g65, g75, g27, g26, g34]
 gammaslabel = ["g21","g23", "g35", "g41", "g64", "g51", "g65", "g75", "g27", "g26", "g34"]
-for intens in intensities = 10**(np.linspace(6,9, num=30)):
+
+collector = list()
+intensities = (10**(np.linspace(6,10, num=15)))
+for inten in intensities:
+    print ("INTENs", inten)
     omegas = list()
     omegas.append(10) #dummy for index 
     lambdickes = list()
@@ -289,9 +293,19 @@ for intens in intensities = 10**(np.linspace(6,9, num=30)):
     np.savetxt("D.csv", np.square(np.abs(pathD)), delimiter=",")
     pathE = np.dot(D51,np.dot(U51,np.dot(D75,np.dot(U75,np.dot(D27,np.dot(U27,D12))))))#(*7p3/2 \[Rule] 5d5/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
     np.savetxt("E.csv", np.square(np.abs(pathE)), delimiter=",")
-    pathF = np.dot(D21,np.dot(U21,D12))#(*7p3/2 \[Rule] 6s1/2*)
+    pathF = np.dot(D21,np.dot(U21,D12))#(*7p3/2 \[Rule] 6s1/2*) 
     np.savetxt("F.csv", np.square(np.abs(pathF)), delimiter=",")
     pathR = np.dot(D51,np.dot(U51,D15))#RED IMAGING 6p3/2 
     np.savetxt("R.csv", np.square(np.abs(pathR)), delimiter=",")
+    
+    def avgnt(n, pat):
+        avg = 0
+        for k in range(0, nmax):
+            avg = avg + np.square(np.abs(pat[n-1,k]))*(k+1)
+        return avg-n
+        
 
+    collector.append([avgnt(1, pathA),avgnt(1, pathB),avgnt(1, pathC),avgnt(1, pathD),avgnt(1, pathE),avgnt(1, pathF),avgnt(1, pathR)])
 
+np.savetxt("intensities.csv", intensities, delimiter=",")
+np.savetxt("heatings.csv", collector, delimiter=",")
