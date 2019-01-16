@@ -26,11 +26,21 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 15
+nmax = 5
 lambdal = 880
 inten = 5*10**8
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
+
+thetanormal = 0
+
+thetastep = math.pi/50
+thetas = np.arange(0, math.pi+thetastep, thetastep)
+
+timeintegration = True
+timesN = 10
+
+
 ###################
 
 cs = caesium.atom()
@@ -146,14 +156,18 @@ def psit(psip,t, omegat):
 
 
 def IntDr(eta):
-	N = np.arange(0,nmax,1)
-	NT = np.arange(0,nmax,1)
-	D = np.zeros((nmax, nmax),dtype=complex)
-	for n in N:
-		for nt in NT:
-			D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(math.pi/4))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(math.pi/4))**2)*np.exp(-0.5*(eta*np.cos(math.pi/4))**2)
+    N = np.arange(0,nmax,1)
+    NT = np.arange(0,nmax,1)
+    Deff = np.zeros((nmax, nmax),dtype=complex)
+    for theta in thetas:
+    	D = np.zeros((nmax, nmax),dtype=complex)
+    	for n in N:
+    		for nt in NT:
+    			D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(math.pi/4))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(math.pi/4))**2)*np.exp(-0.5*(eta*np.cos(math.pi/4))**2)
+    	Deff = Deff +  D*np.sin(theta)/2
+    return Deff*thetastep
+
 	
-	return D
 	
 def IntD(eta):
     N = np.arange(0,nmax,1)
@@ -161,7 +175,7 @@ def IntD(eta):
     D = np.zeros((nmax, nmax),dtype=complex)
     for n in N:
 	    for nt in NT:
-	        D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(0))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(0))**2)*np.exp(-0.5*(eta*np.cos(0))**2)
+	        D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(thetanormal))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(thetanormal))**2)*np.exp(-0.5*(eta*np.cos(thetanormal))**2)
     for n in N:
         D[n] = D[n]/LA.norm(D[n]) #fake normalization
 	
@@ -186,17 +200,21 @@ def Unn(n,nt, omega, omegat, td):
 	
 
 def IntU(omega, omegat, ti):
-    U = np.zeros((nmax, nmax),dtype=complex)
-    N = np.arange(0,nmax,1)
-    NT = np.arange(0,nmax,1)
-    for nl in N:
-        print (nl)
-        for ntl in NT:
-            U[nl,ntl] = Unn(nl,ntl, omega , omegat, ti)
-    for nl in N:
-        U[nl] = U[nl]/LA.norm(U[nl])
     
-    return np.copy(U)
+    if (timeintegration == False): 
+        U = np.zeros((nmax, nmax),dtype=complex)
+        N = np.arange(0,nmax,1)
+        NT = np.arange(0,nmax,1)
+        for nl in N:
+            print (nl)
+            for ntl in NT:
+                U[nl,ntl] = Unn(nl,ntl, omega , omegat, ti)
+        for nl in N:
+            U[nl] = U[nl]/LA.norm(U[nl])
+            
+        return np.copy(U)
+    else:
+        
 	
 #print (omegas[1], omegas[5], 1/g65)
 #U65 = IntU(omegas[1], omegas[5], (1/g65)) 
