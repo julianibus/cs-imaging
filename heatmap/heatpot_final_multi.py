@@ -315,7 +315,7 @@ for inten in intensities:
     collector2.append([avgnt(2, pathA),avgnt(2, pathB),avgnt(2, pathC),avgnt(2, pathD),avgnt(2, pathE),avgnt(2, pathF),avgnt(2, pathR)])
     collectorscatt.append((0.254*scatts[1] + 0.254*scatts[2]+0.058*scatts[3]+0.014*scatts[4]+0.029*scatts[5]+0.032*scatts[6]+0.358*scatts[7])*((hbar*(2*math.pi)/(lambdal*10**(-9)))**2)/(2*m)) #mean lattice scattering assuming saturation of the imaging laser)
     collectorbluescatt.append(np.multiply([avgnt(1, pathA),avgnt(1, pathB),avgnt(1, pathC),avgnt(1, pathD),avgnt(1, pathE),avgnt(1, pathF),avgnt(1, pathR)],hbar*omegas[1]*gtot))
-    collectordepth.append(latticedepths1)
+    collectordepth1.append(latticedepths1)
     collectordepth2.append(latticedepths2)
     print("latt",collectorscatt[len(collectorscatt)-1])
     print("blue",collectorbluescatt[len(collectorbluescatt)-1])
