@@ -53,6 +53,9 @@ g51 = 32.8*10**6
 g64 = 0.91*10**6
 g21 = 1.84*10**6
 
+gtot = 0.201*1/(1/g23+1/g34+1/g41)+0.3678*1/(1/g23+1/g35+1/g51)+0.001969*1/(1/g26+1/g65+1/g51)+0.016289*1/(1/g26+1/g64+1/g41)+0.15449*1/(1/g27+1/g75+1/g51)+0.258427*1/(1/g21)
+print("gtot", gtot)
+
 
 
 l21 = 455.5 * 10**-9 
@@ -75,29 +78,34 @@ gammas = [g21, g23, g35, g41, g64, g51, g65, g75, g27, g26, g34]
 gammaslabel = ["g21","g23", "g35", "g41", "g64", "g51", "g65", "g75", "g27", "g26", "g34"]
 
 collector = list()
+collector2 = list()
+collectorscatt = list()
+collectorbluescatt = list()
+collectordepth1 = list()
+collectordepth2 = list()
 intensities = (10**(np.linspace(6,10, num=15)))
 for inten in intensities:
     print ("INTENs", inten)
     omegas = list()
     omegas.append(10) #dummy for index 
+    scatts = list()
+    scatts.append(10) #dummy for index 
     lambdickes = list()
     lambdickes.append(10) #dummy for index 
     latticedepths1 = list() # in hbar omega
     latticedepths2 = list() # in lattice recoil energies
     for level in levels:
-            #098765', '#000009'
-    	pots = list()
-    	scatts = list()
-    	pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
-    
-    	omega = math.sqrt(np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
-    	if (pot < 0):
-    		omegas.append(-omega)
-    	else:
-    		omegas.append(omega)
-        
-    	latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
-    	latticedepths1.append(latticedepth1)
+        #pots = list()
+        #scatts = list()
+        pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+        omega = math.sqrt(np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+        if (pot < 0):
+            omegas.append(-omega)
+        else:
+            omegas.append(omega)
+        scatts.append(scatt*inten)
+        latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
+        latticedepths1.append(latticedepth1)
     
     
     
@@ -106,7 +114,7 @@ for inten in intensities:
         pot, scatt = cs.GetFactors(lambdal*10**-9, decaylevels[decayi], "transitions_complemented.csv")
         omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
         #if (pot < 0): omega = omega*(-1) #dont negate here as sign not important for calculating the lamb dicke parameter
-        ELatRec = ((hbar*(2*math.pi)/(decays[decayi]))**2)/(2*m)
+        ELatRec = ((hbar*(2*math.pi)/(880*10**(-9)))**2)/(2*m)
         lambdicke = math.sqrt(ELatRec /(hbar * omega))
         lambdickes.append(lambdicke)
         latticedepth2 = (math.fabs(pot)*inten)/(ELatRec)
@@ -280,8 +288,6 @@ for inten in intensities:
     D15 = IntD(etas[6])
     np.savetxt("D15.csv", np.square(np.abs(D15)), delimiter=",")
     
-    print(np.square(np.abs(U65[1])))
-    print(np.square(np.abs(U64[1])))
     
     pathA = np.dot(D41,np.dot(U41,np.dot(D34,np.dot(U34,np.dot(D23,np.dot(U23,D12)))))) #(*7p3/2 \[Rule] 7s1/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
     np.savetxt("A.csv", np.square(np.abs(pathA)), delimiter=",")
@@ -306,6 +312,18 @@ for inten in intensities:
         
 
     collector.append([avgnt(1, pathA),avgnt(1, pathB),avgnt(1, pathC),avgnt(1, pathD),avgnt(1, pathE),avgnt(1, pathF),avgnt(1, pathR)])
-
+    collector2.append([avgnt(2, pathA),avgnt(2, pathB),avgnt(2, pathC),avgnt(2, pathD),avgnt(2, pathE),avgnt(2, pathF),avgnt(2, pathR)])
+    collectorscatt.append((0.254*scatts[1] + 0.254*scatts[2]+0.058*scatts[3]+0.014*scatts[4]+0.029*scatts[5]+0.032*scatts[6]+0.358*scatts[7])*((hbar*(2*math.pi)/(lambdal*10**(-9)))**2)/(2*m)) #mean lattice scattering assuming saturation of the imaging laser)
+    collectorbluescatt.append(np.multiply([avgnt(1, pathA),avgnt(1, pathB),avgnt(1, pathC),avgnt(1, pathD),avgnt(1, pathE),avgnt(1, pathF),avgnt(1, pathR)],hbar*omegas[1]*gtot))
+    collectordepth.append(latticedepths1)
+    collectordepth2.append(latticedepths2)
+    print("latt",collectorscatt[len(collectorscatt)-1])
+    print("blue",collectorbluescatt[len(collectorbluescatt)-1])
+    
 np.savetxt("intensities.csv", intensities, delimiter=",")
 np.savetxt("heatings.csv", collector, delimiter=",")
+np.savetxt("heating2s.csv", collector2, delimiter=",")
+np.savetxt("heatings_lattice.csv", collectorscatt, delimiter=",")
+np.savetxt("heatings_blue.csv", collectorbluescatt, delimiter=",")
+np.savetxt("latticedepths1.csv", collectordepth1, delimiter=",")
+np.savetxt("latticedepths2.csv", collectordepth2, delimiter=",")

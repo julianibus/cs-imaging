@@ -37,7 +37,7 @@ thetanormal = 0
 thetastep = math.pi/50
 thetas = np.arange(0, math.pi+thetastep, thetastep)
 
-timeintegration = True
+timeintegration = False
 timesN = 10
 
 
@@ -214,6 +214,7 @@ def IntU(omega, omegat, ti):
             
         return np.copy(U)
     else:
+        dummy = 0
         
 	
 #print (omegas[1], omegas[5], 1/g65)
