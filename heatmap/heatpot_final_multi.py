@@ -32,7 +32,7 @@ lambdal = 880
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
 ###################
-
+RamanCooling = True
 #################
 
 cs = caesium.atom()
@@ -294,15 +294,8 @@ for inten in intensities:
     D15 = IntD(etas[6])
     np.savetxt("D15.csv", np.square(np.abs(D15)), delimiter=",")
     
-    #### Raman Sideband Cooling ####
-    def strided_method(ar):
-        a = np.concatenate(( ar, ar[:-1] ))
-        L = len(ar)
-        n = a.strides[0]
-        return np.lib.stride_tricks.as_strided(a[L-1:], (L,L), (-n,n))
-    
 
-    Ra = np.identity(nmax)
+    Ra = np.identity(nmax) ##relict of failed implementation of raman sideband cooling matrix
     
     
     ################################
@@ -324,8 +317,15 @@ for inten in intensities:
     
     def avgnt(n, pat):
         avg = 0
-        for k in range(0, nmax):
-            avg = avg + np.square(np.abs(pat[n-1,k]))*(k+1)
+        if (RamanCooling == True):
+            for k in range(0, nmax):
+                if (k >= 1):
+                    avg = avg + np.square(np.abs(pat[n-1,k]))*k
+                else:
+                    avg = avg + np.square(np.abs(pat[n-1,k]))*(k+1)
+        else:
+            for k in range(0, nmax):
+                avg = avg + np.square(np.abs(pat[n-1,k]))*(k+1)
         return avg-n
         
 
