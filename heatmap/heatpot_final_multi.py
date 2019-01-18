@@ -26,12 +26,14 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 9
+nmax = 10
 lambdal = 880
 ### INTENSITY MULTI ######
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
 ###################
+
+#################
 
 cs = caesium.atom()
 
@@ -292,20 +294,32 @@ for inten in intensities:
     D15 = IntD(etas[6])
     np.savetxt("D15.csv", np.square(np.abs(D15)), delimiter=",")
     
+    #### Raman Sideband Cooling ####
+    def strided_method(ar):
+        a = np.concatenate(( ar, ar[:-1] ))
+        L = len(ar)
+        n = a.strides[0]
+        return np.lib.stride_tricks.as_strided(a[L-1:], (L,L), (-n,n))
     
-    pathA = np.dot(D41,np.dot(U41,np.dot(D34,np.dot(U34,np.dot(D23,np.dot(U23,D12)))))) #(*7p3/2 \[Rule] 7s1/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
+
+    Ra = np.identity(nmax)
+    
+    
+    ################################
+    
+    pathA = np.dot(D41,np.dot(U41,np.dot(D34,np.dot(U34,np.dot(D23,np.dot(U23,np.dot(D12,Ra))))))) #(*7p3/2 \[Rule] 7s1/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
     np.savetxt("A.csv", np.square(np.abs(pathA)), delimiter=",")
-    pathB = np.dot(D51,np.dot(U51,np.dot(D35,np.dot(U35,np.dot(D23,np.dot(U23,D12))))))#(*7p3/2 \[Rule] 7s1/2 \[Rule] \6p3/2\[Rule] 6s1/2*)
-    np.savetxt("B.csv", np.square(np.abs(pathB)), delimiter=",")
-    pathC = np.dot(D51,np.dot(U51,np.dot(D65,np.dot(U65,np.dot(D26,np.dot(U26,D12))))))#(*7p3/2 \[Rule] 5d3/2 \[Rule] \6p3/2\[Rule] 6s1/2*)
+    pathB = np.dot(D51,np.dot(U51,np.dot(D35,np.dot(U35,np.dot(D23,np.dot(U23,np.dot(D12,Ra)))))))#(*7p3/2 \[Rule] 7s1/2 \[Rule] \6p3/2\[Rule] 6s1/2*)
+    np.savetxt("B.csv", np.square(np.abs(pathB)), delimiter=",") 
+    pathC = np.dot(D51,np.dot(U51,np.dot(D65,np.dot(U65,np.dot(D26,np.dot(U26,np.dot(D12,Ra)))))))#(*7p3/2 \[Rule] 5d3/2 \[Rule] \6p3/2\[Rule] 6s1/2*)
     np.savetxt("C.csv", np.square(np.abs(pathC)), delimiter=",")
-    pathD = np.dot(D41,np.dot(U41,np.dot(D64,np.dot(U64,np.dot(D26,np.dot(U26,D12))))))#(*7p3/2 \[Rule] 5d3/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
+    pathD = np.dot(D41,np.dot(U41,np.dot(D64,np.dot(U64,np.dot(D26,np.dot(U26,np.dot(D12,Ra)))))))#(*7p3/2 \[Rule] 5d3/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
     np.savetxt("D.csv", np.square(np.abs(pathD)), delimiter=",")
-    pathE = np.dot(D51,np.dot(U51,np.dot(D75,np.dot(U75,np.dot(D27,np.dot(U27,D12))))))#(*7p3/2 \[Rule] 5d5/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
+    pathE = np.dot(D51,np.dot(U51,np.dot(D75,np.dot(U75,np.dot(D27,np.dot(U27,np.dot(D12,Ra)))))))#(*7p3/2 \[Rule] 5d5/2 \[Rule] \6p1/2\[Rule] 6s1/2*)
     np.savetxt("E.csv", np.square(np.abs(pathE)), delimiter=",")
-    pathF = np.dot(D21,np.dot(U21,D12))#(*7p3/2 \[Rule] 6s1/2*) 
+    pathF = np.dot(D21,np.dot(U21,np.dot(D12,Ra)))#(*7p3/2 \[Rule] 6s1/2*) 
     np.savetxt("F.csv", np.square(np.abs(pathF)), delimiter=",")
-    pathR = np.dot(D51,np.dot(U51,D15))#RED IMAGING 6p3/2 
+    pathR = np.dot(D51,np.dot(U51,np.dot(D15,Ra)))#RED IMAGING 6p3/2 
     np.savetxt("R.csv", np.square(np.abs(pathR)), delimiter=",")
     
     def avgnt(n, pat):
@@ -334,7 +348,7 @@ for inten in intensities:
 np.savetxt("intensities.csv", intensities, delimiter=",")
 np.savetxt("heatings.csv", collector, delimiter=",")
 np.savetxt("heating2s.csv", collector2, delimiter=",")
-np.savetxt("heatingsall.csv", collectorall, delimiter=",")
+#np.savetxt("heatingsall.csv", collectorall, delimiter=",")
 np.savetxt("heatings_lattice.csv", collectorscatt, delimiter=",")
 np.savetxt("heatings_blue.csv", collectorbluescatt, delimiter=",")
 np.savetxt("latticedepths1.csv", collectordepth1, delimiter=",")
