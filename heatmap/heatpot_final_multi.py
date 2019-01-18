@@ -79,6 +79,10 @@ gammaslabel = ["g21","g23", "g35", "g41", "g64", "g51", "g65", "g75", "g27", "g2
 
 collector = list()
 collector2 = list()
+collectorall = list()
+
+
+
 collectorscatt = list()
 collectorbluescatt = list()
 collectordepth1 = list()
@@ -313,6 +317,13 @@ for inten in intensities:
 
     collector.append([avgnt(1, pathA),avgnt(1, pathB),avgnt(1, pathC),avgnt(1, pathD),avgnt(1, pathE),avgnt(1, pathF),avgnt(1, pathR)])
     collector2.append([avgnt(2, pathA),avgnt(2, pathB),avgnt(2, pathC),avgnt(2, pathD),avgnt(2, pathE),avgnt(2, pathF),avgnt(2, pathR)])
+    
+    collectorallpart = list()
+    for z in range(1, nmax):
+        collectorallpart.append([avgnt(z, pathA),avgnt(z, pathB),avgnt(z, pathC),avgnt(z, pathD),avgnt(z, pathE),avgnt(z, pathF),avgnt(z, pathR)])
+    collectorall.append(collectorallpart)
+    
+    
     collectorscatt.append((0.254*scatts[1] + 0.254*scatts[2]+0.058*scatts[3]+0.014*scatts[4]+0.029*scatts[5]+0.032*scatts[6]+0.358*scatts[7])*((hbar*(2*math.pi)/(lambdal*10**(-9)))**2)/(2*m)) #mean lattice scattering assuming saturation of the imaging laser)
     collectorbluescatt.append(np.multiply([avgnt(1, pathA),avgnt(1, pathB),avgnt(1, pathC),avgnt(1, pathD),avgnt(1, pathE),avgnt(1, pathF),avgnt(1, pathR)],hbar*omegas[1]*gtot))
     collectordepth1.append(latticedepths1)
@@ -323,6 +334,7 @@ for inten in intensities:
 np.savetxt("intensities.csv", intensities, delimiter=",")
 np.savetxt("heatings.csv", collector, delimiter=",")
 np.savetxt("heating2s.csv", collector2, delimiter=",")
+np.savetxt("heatingsall.csv", collectorall, delimiter=",")
 np.savetxt("heatings_lattice.csv", collectorscatt, delimiter=",")
 np.savetxt("heatings_blue.csv", collectorbluescatt, delimiter=",")
 np.savetxt("latticedepths1.csv", collectordepth1, delimiter=",")
