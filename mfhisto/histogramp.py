@@ -165,18 +165,18 @@ exciteds_posdict = {
         }
 
 
-def create_excitation_matrix(mode):
+def create_excitation_matrix(mode, deltaf):
     ematrix = list()
     if mode == "pi":
         for gstate in grounds:
-            estate = gstate
+            estate = estate = (gstate[0]+deltaf,gstate[1] )
             estate_index = exciteds_posdict[estate]
             row = np.zeros(len(exciteds_posdict))
             row[estate_index] = 1
             ematrix.append(row)
     elif mode == "sigma+":
         for gstate in grounds:
-            estate = (gstate[0],gstate[1]+1)
+            estate = (gstate[0]+deltaf,gstate[1]+1)
             row = np.zeros(len(exciteds_posdict))
             try:
                 estate_index = exciteds_posdict[estate]
@@ -186,7 +186,7 @@ def create_excitation_matrix(mode):
             ematrix.append(row)
     elif mode == "sigma-":
         for gstate in grounds:
-            estate = (gstate[0],gstate[1]-1)
+            estate = (gstate[0]+deltaf,gstate[1]-1)
             row = np.zeros(len(exciteds_posdict))
             try:
                 estate_index = exciteds_posdict[estate]
