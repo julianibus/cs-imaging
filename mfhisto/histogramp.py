@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 ICs = 7/2
 q = 0
 
+Natoms = 1200
+
 def trans_elem(J,Jt, F, mf, Ft, mft):
     q = (mf - mft)
     return (-1)**(Ft - 1 + mf) * math.sqrt(2*F + 1) *wigner_3j(Ft, 1, F, mft , q, -mf) * (-1)**(Ft+J+1+ICs)*math.sqrt((2*Ft+1)*(2*J+1))*wigner_6j(J, Jt, 1, Ft, F, ICs)
@@ -27,7 +29,7 @@ def transprobs(J,Jt, F, mf):
     for Fti in Fts:
         mfts = np.arange(max(-Fti, mf - 1), min(Fti, mf + 1) + 1, 1)
         for mfti in mfts:
-            total_part = np.square(np.abs(trans_elem(J,Jt, F, mf, Fti, mfti)))
+            total_part = np.square(np.abs(trans_elem(J,Jt, int(F), int(mf), int(Fti), int(mfti))))
             total = total + total_part
             #print(Fti, mfti, "-> ",total_part)
     
@@ -35,10 +37,12 @@ def transprobs(J,Jt, F, mf):
     for Fti in Fts:
         mfts = np.arange(max(-Fti, mf - 1), min(Fti, mf + 1) + 1, 1)
         for mfti in mfts:
-            selected = np.square(np.abs(trans_elem(J,Jt, F, mf, Fti, mfti)))
+            selected = np.square(np.abs(trans_elem(J,Jt, int(F), int(mf), int(Fti), int(mfti))))
             choices.append((Fti, mfti))
             probs.append(selected/total)
     #print(sum(probs))
+    
+  #  print (J, Jt, F, mf, choices)
     return choices, probs
 
 def decay_level_choicer(J,Jt, F, mf):
@@ -49,28 +53,25 @@ def decay_level_choicer(J,Jt, F, mf):
 def mfhisto(F, mf):
     clist = list()
     
-    for f in range(0,50):
+    for f in range(0,Natoms):
         paths = np.arange(0, 6,1)
        # print(paths)
         path = np.random.choice(paths,1, p=[0.201004, 0.367810,0.001969,0.016289,0.15449,0.258427]/np.sum([0.201004, 0.367810,0.001969,0.016289,0.15449,0.258427]))[0]
-        try:
-            if path == 0:
-                c = decay_level_choicer(1/2,1/2, *decay_level_choicer(1/2, 1/2,*decay_level_choicer(3/2,1/2,F,mf)))
-            elif path == 1:
-                c = decay_level_choicer(3/2,1/2, *decay_level_choicer(1/2, 3/2,*decay_level_choicer(3/2,1/2,F,mf)))
-            elif path == 2:
-                c = decay_level_choicer(3/2,1/2, *decay_level_choicer(3/2, 3/2,*decay_level_choicer(3/2,3/2,F,mf)))
-            elif path == 3:
-                c = decay_level_choicer(1/2,1/2, *decay_level_choicer(3/2, 1/2,*decay_level_choicer(3/2,3/2,F,mf)))
-            elif path == 4:
-                c = decay_level_choicer(3/2,1/2, *decay_level_choicer(5/2, 3/2,*decay_level_choicer(3/2,5/2,F,mf)))
-            elif path == 5:
-                c = decay_level_choicer(3/2,1/2,F,mf)
-                
-            clist.append(c)
+        if path == 0:
+            c = decay_level_choicer(1/2,1/2, *decay_level_choicer(1/2, 1/2,*decay_level_choicer(3/2,1/2,F,mf)))
+        elif path == 1:
+            c = decay_level_choicer(3/2,1/2, *decay_level_choicer(1/2, 3/2,*decay_level_choicer(3/2,1/2,F,mf)))
+        elif path == 2:
+            c = decay_level_choicer(3/2,1/2, *decay_level_choicer(3/2, 3/2,*decay_level_choicer(3/2,3/2,F,mf)))
+        elif path == 3:
+            c = decay_level_choicer(1/2,1/2, *decay_level_choicer(3/2, 1/2,*decay_level_choicer(3/2,3/2,F,mf)))
+        elif path == 4:
+            c = decay_level_choicer(3/2,1/2, *decay_level_choicer(5/2, 3/2,*decay_level_choicer(3/2,5/2,F,mf)))
+        elif path == 5:
+            c = decay_level_choicer(3/2,1/2,F,mf)
+            
+        clist.append(c)
            # print("yes decay", path)
-        except ValueError:
-            print("no decay", path)
         
         
         
@@ -78,7 +79,7 @@ def mfhisto(F, mf):
      
     if len(clist) > 0:
         unique, counts = np.unique(clist, return_counts=True, axis=0)
-        print(unique, counts)
+        #print(unique, counts)
         
         grounds_posdict = {
                 (3,-3): 0,
@@ -118,6 +119,7 @@ def mfhisto(F, mf):
         return "SHIT"
     
 exciteds = [(2,-2),(2,-1),(2,0),(2,1),(2,2),(3,-3),(3,-2),(3,-1),(3,0),(3,1),(3,2),(3,3),(4,-4),(4,-3),(4,-2),(4,-1),(4,0),(4,1),(4,2),(4,3),(4,4),(5,-5),(5,-4),(5,-3),(5,-2),(5,-1),(5,0),(5,1),(5,2),(5,3),(5,4),(5,5)]
+exciteds_strings = ["(2,-2)","(2,-1)","(2,0)","(2,1)","(2,2)","(3,-3)","(3,-2)","(3,-1)","(3,0)","(3,1)","(3,2)","(3,3)","(4,-4)","(4,-3)","(4,-2)","(4,-1)","(4,0)","(4,1)","(4,2)","(4,3)","(4,4)","(5,-5)","(5,-4)","(5,-3)","(5,-2)","(5,-1)","(5,0)","(5,1)","(5,2)","(5,3)","(5,4)","(5,5)"]
 grounds = [(3,-3),(3,-2),(3,-1),(3,0),(3,1),(3,2),(3,3),(4,-4),(4,-3),(4,-2),(4,-1),(4,0),(4,1),(4,2),(4,3),(4,4)]
 grounds_strings = ["(3,-3)","(3,-2)","(3,-1)","(3,0)","(3,1)","(3,2)","(3,3)","(4,-4)","(4,-3)","(4,-2)","(4,-1)","(4,0)","(4,1)","(4,2)","(4,3)","(4,4)"]
 decayb_matrix = list() 
@@ -199,16 +201,61 @@ def create_excitation_matrix(mode, deltaf):
             
             ematrix.append(row)
     return np.transpose(ematrix)
-    
-    
-initial_state = np.zeros(len(grounds))
-initial_state[len(grounds) -1] = 1
 
+Fcolors ={2: 'red',
+          3: 'green',
+          4: 'blue',
+          5: 'orange'
+        
+        }
+
+def barplot(pil, strings,title, xtitle, ytitle):
+    plt.figure(figsize=(10,5))
+    barlist = plt.bar(np.arange(0,len(strings),1), pil, align='center', alpha=0.7,edgecolor='b')
+    for ibar in range(0,len(barlist)):
+        barlist[ibar].set_color(Fcolors[int(strings[ibar][1])])
+        
+    ax = plt.axes()        
+    ax.yaxis.grid()
+    ax.set_axisbelow(True)
+    plt.xticks(np.arange(0,len(strings),1), strings)
+    plt.title(title)
+    plt.xlabel(xtitle)
+    plt.ylabel(ytitle)
+    plt.xticks(rotation=90) # horizontal lines
+    plt.show()
+
+
+## EXPERIMENT 1: DECAY HISTOGRAMS
+shares =list()
+maxdecays = list()
+for exi in exciteds:
+    initial_state = np.zeros(len(exciteds))
+    initial_state[exciteds_posdict[exi]] = 1
+    out = np.dot(decay_matrix,initial_state) 
+    barplot(out,grounds_strings, "Decay from "  + str(exi), "Ground State (F, mF)", "Population")
+    sum3 = sum(out[0:7])
+    sum4 = sum(out[7:16])
+    share3 = sum3/(sum3 +sum4)
+    shares.append(share3)
+    maxdecays.append(max(out))
+
+print (np.asarray(shares), exciteds_strings)
+barplot(np.asarray(shares), exciteds_strings, "", "Excited State (F, mF)", "Share of Decays into F=3")
+barplot(np.asarray(maxdecays), exciteds_strings, "", "Excited State (F, mF)", "Largest Decay Ratio")
+    
+    
+
+#initial_state = np.zeros(len(grounds))
+#initial_state[len(grounds) -1] = 1
+#
+#
+#pi_light = np.dot(decay_matrix,np.dot(create_excitation_matrix("pi", 1),initial_state))
+#sigmaplus_light = np.dot(decay_matrix,np.dot(create_excitation_matrix("sigma+", 1),initial_state))
+#sigmaminus_light = np.dot(decay_matrix,np.dot(create_excitation_matrix("sigma-", 1),initial_state))
+#
+#barplot(pi_light)
+#barplot(sigmaplus_light)
+#barplot(sigmaminus_light)
 ############### Pi light ##############
 
-pil = np.dot(decay_matrix,np.dot(create_excitation_matrix("sigma+", 1),initial_state))
-print(np.asarray(grounds), pil)
-plt.figure(figsize=(10,5))
-plt.bar(np.arange(0,16,1), pil, align='center', alpha=0.5)
-plt.xticks(np.arange(0,16,1), grounds_strings)
-plt.show()
