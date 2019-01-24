@@ -49,7 +49,7 @@ def decay_level_choicer(J,Jt, F, mf):
 def mfhisto(F, mf):
     clist = list()
     
-    for f in range(0,100):
+    for f in range(0,50):
         paths = np.arange(0, 6,1)
        # print(paths)
         path = np.random.choice(paths,1, p=[0.201004, 0.367810,0.001969,0.016289,0.15449,0.258427]/np.sum([0.201004, 0.367810,0.001969,0.016289,0.15449,0.258427]))[0]
@@ -97,8 +97,7 @@ def mfhisto(F, mf):
                 (4,2): 13,    
                 (4,3): 14,    
                 (4,4): 15,            
-                }
-        
+				}
         out_array = np.zeros(16)
         counter = 0
         for un in unique:
@@ -120,13 +119,14 @@ def mfhisto(F, mf):
     
 exciteds = [(2,-2),(2,-1),(2,0),(2,1),(2,2),(3,-3),(3,-2),(3,-1),(3,0),(3,1),(3,2),(3,3),(4,-4),(4,-3),(4,-2),(4,-1),(4,0),(4,1),(4,2),(4,3),(4,4),(5,-5),(5,-4),(5,-3),(5,-2),(5,-1),(5,0),(5,1),(5,2),(5,3),(5,4),(5,5)]
 grounds = [(3,-3),(3,-2),(3,-1),(3,0),(3,1),(3,2),(3,3),(4,-4),(4,-3),(4,-2),(4,-1),(4,0),(4,1),(4,2),(4,3),(4,4)]
+grounds_strings = ["(3,-3)","(3,-2)","(3,-1)","(3,0)","(3,1)","(3,2)","(3,3)","(4,-4)","(4,-3)","(4,-2)","(4,-1)","(4,0)","(4,1)","(4,2)","(4,3)","(4,4)"]
 decayb_matrix = list() 
 
 for ex in exciteds:
     row = mfhisto(*ex)
     decayb_matrix.append(row)
 
-decay_matrix = np.asarray(decayb_matrix)
+decay_matrix = np.transpose(np.asarray(decayb_matrix))
 
 
 exciteds_posdict = {
@@ -169,10 +169,13 @@ def create_excitation_matrix(mode, deltaf):
     ematrix = list()
     if mode == "pi":
         for gstate in grounds:
-            estate = estate = (gstate[0]+deltaf,gstate[1] )
-            estate_index = exciteds_posdict[estate]
+            estate = (gstate[0]+deltaf,gstate[1] )
             row = np.zeros(len(exciteds_posdict))
-            row[estate_index] = 1
+            try:
+                estate_index = exciteds_posdict[estate]
+                row[estate_index] = 1
+            except Exception:
+                dummy = 0
             ematrix.append(row)
     elif mode == "sigma+":
         for gstate in grounds:
@@ -195,4 +198,17 @@ def create_excitation_matrix(mode, deltaf):
                 dummy = 0
             
             ematrix.append(row)
-    return ematrix
+    return np.transpose(ematrix)
+    
+    
+initial_state = np.zeros(len(grounds))
+initial_state[len(grounds) -1] = 1
+
+############### Pi light ##############
+
+pil = np.dot(decay_matrix,np.dot(create_excitation_matrix("sigma+", 1),initial_state))
+print(np.asarray(grounds), pil)
+plt.figure(figsize=(10,5))
+plt.bar(np.arange(0,16,1), pil, align='center', alpha=0.5)
+plt.xticks(np.arange(0,16,1), grounds_strings)
+plt.show()
