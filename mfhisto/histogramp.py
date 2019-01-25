@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 ICs = 7/2
 q = 0
 
-Natoms = 1200
+Natoms = 100
 
 def trans_elem(J,Jt, F, mf, Ft, mft):
     q = (mf - mft)
@@ -165,7 +165,24 @@ exciteds_posdict = {
         (5,4): 30, 
         (5,5): 31           
         }
-
+grounds_posdict = {
+        (3,-3): 0,
+        (3,-2): 1,
+        (3,-1): 2,            
+        (3,0): 3,    
+        (3,1): 4,    
+        (3,2): 5,    
+        (3,3): 6,    
+        (4,-4): 7,
+        (4,-3): 8,
+        (4,-2): 9,
+        (4,-1): 10,            
+        (4,0): 11,    
+        (4,1): 12,    
+        (4,2): 13,    
+        (4,3): 14,    
+        (4,4): 15,            
+				}
 
 def create_excitation_matrix(mode, deltaf):
     ematrix = list()
@@ -209,11 +226,54 @@ Fcolors ={2: 'red',
         
         }
 
+def raman_matrix(mode, deltaf):
+    ematrix = list()
+    if mode == "pi":
+        for gstate in grounds:
+            estate = (gstate[0]+deltaf,gstate[1] )
+            row = np.zeros(len(grounds_posdict))
+            try:
+                estate_index = grounds_posdict[estate]
+                row[estate_index] = 1
+            except Exception:
+                gstate_index = grounds_posdict[gstate]
+                row[gstate_index] = 1
+            ematrix.append(row)
+    elif mode == "sigma+":
+        for gstate in grounds:
+            estate = (gstate[0] +deltaf,gstate[1]+1)
+            row = np.zeros(len(grounds_posdict))
+            try:
+                estate_index = grounds_posdict[estate]
+                row[estate_index] = 1
+            except Exception:
+                gstate_index = grounds_posdict[gstate]
+                row[gstate_index] = 1
+            ematrix.append(row)
+    elif mode == "sigma-":
+        for gstate in grounds:
+            estate = (gstate[0]+deltaf,gstate[1]-1)
+            row = np.zeros(len(grounds_posdict))
+            try:
+                estate_index = grounds_posdict[estate]
+                row[estate_index] = 1
+            except Exception:
+                gstate_index = grounds_posdict[gstate]
+                row[gstate_index] = 1
+            
+            ematrix.append(row)
+    return np.transpose(ematrix)
+
+
+
 def barplot(pil, strings,title, xtitle, ytitle):
     plt.figure(figsize=(10,5))
     barlist = plt.bar(np.arange(0,len(strings),1), pil, align='center', alpha=0.7,edgecolor='b')
     for ibar in range(0,len(barlist)):
-        barlist[ibar].set_color(Fcolors[int(strings[ibar][1])])
+        try:
+            barlist[ibar].set_color(Fcolors[int(strings[ibar][1])])
+        except Exception:
+            continue;
         
     ax = plt.axes()        
     ax.yaxis.grid()
@@ -244,8 +304,57 @@ print (np.asarray(shares), exciteds_strings)
 barplot(np.asarray(shares), exciteds_strings, "", "Excited State (F, mF)", "Share of Decays into F=3")
 barplot(np.asarray(maxdecays), exciteds_strings, "", "Excited State (F, mF)", "Largest Decay Ratio")
     
-    
 
+## EXPERIMENT 2: Full Cycle
+
+initial_state = np.zeros(len(grounds))
+initial_state[11] = 1 #(4,4)
+
+
+
+def timeevolution(N, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+    
+    tot_probs = list()
+    cool_shares = list()
+    times = np.arange(0,N,1)
+    
+    newinitial = initial_state
+    
+    for n in range(0,N):
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        #barplot(newinitial, grounds_strings, "","","")
+        tot_prob = (np.sum(newinitial))
+        sum3 = sum(newinitial[0:7])
+        sum4 = sum(newinitial[7:16])
+        if raman_deltaf == 1:
+            cool_share = sum3/(sum3 +sum4)
+        elif raman_deltaf == -1:
+            cool_share = sum4/(sum3 +sum4)
+        tot_probs.append(tot_prob)
+        cool_shares.append(cool_share)
+        #print(tot_prob, cool_share)
+    #plt.figure(figsize=(10,5))
+    #plt.plot(times, tot_probs)
+    #plt.figure(figsize=(10,5))
+    #plt.plot(times, cool_shares)
+    return tot_prob, cool_share
+
+def experiment2():
+    label_strings = list()
+    eq_tot_probs = list()
+    eq_cool_shares = list()
+    for repump_mode in ["pi", "sigma+", "sigma-"]:
+        for repump_deltaf in [0,+1]:
+            for raman_mode in ["pi", "sigma+", "sigma-"]:
+                for raman_deltaf in [-1,+1]:
+                    label = "Repump " + repump_mode + " " +  str(repump_deltaf) + " Raman " + raman_mode + " " + str(raman_deltaf)
+                    print(label)
+                    label_strings.append( label)
+                    eq_tot_prob, eq_cool_share = timeevolution(15, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf)
+                    eq_tot_probs.append(eq_tot_prob)
+                    eq_cool_shares.append(eq_cool_shares)
+    barplot(eq_tot_probs, label_strings, "", "Configuration", "Prob")
+    barplot(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
 #initial_state = np.zeros(len(grounds))
 #initial_state[len(grounds) -1] = 1
 #
