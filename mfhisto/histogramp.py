@@ -9,12 +9,15 @@ from sympy.physics.wigner import wigner_6j
 import math
 import numpy as np
 import matplotlib.pyplot as plt
- 
+import matplotlib as mpl
+
+mpl.rcParams['xtick.direction'] = 'in'
+mpl.rcParams['ytick.direction'] = 'in'
 
 ICs = 7/2
 q = 0
 
-Natoms = 300
+Natoms = 100
 
 def trans_elem(J,Jt, F, mf, Ft, mft):
     q = (mf - mft)
@@ -291,7 +294,7 @@ for exi in exciteds:
     initial_state = np.zeros(len(exciteds))
     initial_state[exciteds_posdict[exi]] = 1
     out = np.dot(decay_matrix,initial_state) 
-    barplot(out,grounds_strings, "Decay from "  + str(exi), "Ground State (F, mF)", "Population")
+    #barplot(out,grounds_strings, "Decay from "  + str(exi), "Ground State (F, mF)", "Population")
     sum3 = sum(out[0:7])
     sum4 = sum(out[7:16])
     share3 = sum3/(sum3 +sum4)
@@ -385,16 +388,128 @@ def experiment2():
                     eq_cool_shares.append(eq_cool_share)
     barplot(eq_tot_probs, label_strings, "", "Configuration", "Prob")
     barplot(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
-#initial_state = np.zeros(len(grounds))
-#initial_state[len(grounds) -1] = 1
-#
-#
-#pi_light = np.dot(decay_matrix,np.dot(create_excitation_matrix("pi", 1),initial_state))
-#sigmaplus_light = np.dot(decay_matrix,np.dot(create_excitation_matrix("sigma+", 1),initial_state))
-#sigmaminus_light = np.dot(decay_matrix,np.dot(create_excitation_matrix("sigma-", 1),initial_state))
-#
-#barplot(pi_light)
-#barplot(sigmaplus_light)
-#barplot(sigmaminus_light)
-############### Pi light ##############
 
+
+## EXPERIMENT 3: TIME EVOLUTION INCLUDING TEMPERATURE
+#Loading Matrix
+def load_matrix(cutoff):
+    totmatrix = np.loadtxt("/home/julian/Projects/cs-imaging/heatmap/Pathtot.csv",delimiter=",")[0:cutoff,0:cutoff]
+    plt.matshow(totmatrix)
+    rowsums = list()
+    columnsums = list()
+    for i in range(0,len(totmatrix)):
+        rowsum = np.sum(totmatrix[i])
+        columnsum = np.sum(totmatrix[:,i])
+        #Stabilizer
+        if (columnsum) > 1:
+            totmatrix[:,i] = totmatrix[:,i]/np.sum(totmatrix[:,i])
+            columnsum = np.sum(totmatrix[:,i])
+        print (i, columnsum)  
+    return totmatrix
+
+cutoff = 29  #max n, must matxh size of matrix
+initial_state = np.zeros(len(grounds))
+initial_state[15] = 1 #(4,0)
+initial_state_n = np.zeros(cutoff)
+initial_state_n[1] = 1 #All atoms in ground state
+n_matrix = load_matrix(cutoff) #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
+
+def full_time_evolution(N, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+    
+    tot_probs = list()
+    cool_shares = list()
+    newinitial_n_sums = list()
+    newinitial_n_nocooling_sums = list()
+    newinitial_n_perfcooling_sums = list()
+    times = np.arange(0,N,1)
+    
+    newinitial = initial_state
+    newinitial_n = initial_state_n
+    newinitial_n0 = initial_state_n[0]
+    newinitial_n0_vector = np.concatenate([[newinitial_n0],np.zeros(len(newinitial_n)-1)])
+    
+    newinitial_n_nocooling = initial_state_n
+    
+    newinitial_n_perfcooling = initial_state_n
+    newinitial_n0_perfcooling = initial_state_n[0]
+    newinitial_n0_perfcooling_vector = np.concatenate([[newinitial_n0],np.zeros(len(newinitial_n)-1)])
+    
+    for n in range(0,N):
+        #plt.clf()
+        #plt.ioff()
+        #plt.subplot(211)
+        #plt.bar(np.arange(0,len(newinitial),1), newinitial, align='center', alpha=0.7,edgecolor='b')    
+        #plt.xticks(np.arange(0,len(grounds_strings),1), grounds_strings)
+        #plt.xlabel("State")
+        #plt.ylabel("Population")
+        #plt.ylim([0,1])
+        #plt.xticks(rotation=90)           
+        
+        #plt.subplot(212)
+        #plt.bar(np.arange(0,len(newinitial_n),1), newinitial_n, align='center', alpha=0.7,edgecolor='b')
+        
+        #plt.xticks(np.arange(0,len(newinitial_n),1), np.arange(0,len(newinitial_n),1))
+        #plt.xlabel("State")
+        #plt.ylabel("Population")
+        #plt.ylim([0,1])
+        #plt.xticks(rotation=90)
+        
+        #plt.savefig("evol"+ '{0:05d}'.format(n) + ".png")
+        
+        #print ("=====",n)
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        tot_prob = (np.sum(newinitial))
+        sum3 = sum(newinitial[0:7])
+        sum4 = sum(newinitial[7:16])
+        if raman_deltaf == 1:
+            cool_share = sum3/(sum3 +sum4)
+        elif raman_deltaf == -1:
+            cool_share = sum4/(sum3 +sum4)
+        tot_probs.append(tot_prob)
+        cool_shares.append(cool_share)
+                
+        
+        #N VECTOR PART
+        newinitial_n_cooled = np.zeros(cutoff)
+        for j in range(0, len(newinitial_n)-1):
+            newinitial_n_cooled[j] = newinitial_n[j+1] 
+        newinitial_n_cooled[len(newinitial_n)-1] = 0
+        
+        newinitial_n_perfcooling_cooled = np.zeros(cutoff)
+        for j in range(0, len(newinitial_n)-1):
+            newinitial_n_perfcooling_cooled[j] = newinitial_n_perfcooling[j+1] 
+        newinitial_n_perfcooling_cooled[len(newinitial_n)-1] = 0
+        
+        #print(newinitial_n0_vector, cool_share,newinitial_n_cooled,cool_share*np.dot(n_matrix, newinitial_n_cooled),newinitial_n - newinitial_n0_vector)
+        newinitial_n = np.add(newinitial_n0_vector,cool_share*np.dot(n_matrix, newinitial_n_cooled) + (1-cool_share)*np.dot(n_matrix, newinitial_n - newinitial_n0_vector))
+        newinitial_n0 = newinitial_n0 + cool_share*np.dot(n_matrix, newinitial_n_cooled)[0]
+        newinitial_n0_vector = np.concatenate([[newinitial_n0],np.zeros(len(newinitial_n)-1)])         
+        newinitial_n_sums.append(np.sum(newinitial_n))  
+        
+        #newinitial = newinitial * np.sum(newinitial_n)
+        newinitial_n_nocooling = np.dot(n_matrix, newinitial_n_nocooling)
+        newinitial_n_nocooling_sum = np.sum(newinitial_n_nocooling)
+        newinitial_n_nocooling_sums.append(newinitial_n_nocooling_sum)
+        
+        newinitial_n_perfcooling = np.add(newinitial_n0_perfcooling_vector,1*np.dot(n_matrix, newinitial_n_perfcooling_cooled) + (1-1)*np.dot(n_matrix, newinitial_n_perfcooling - newinitial_n0_perfcooling_vector))
+        newinitial_n0_perfcooling = newinitial_n0_perfcooling + 1*np.dot(n_matrix, newinitial_n_perfcooling_cooled)[0]
+        newinitial_n0_perfcooling_vector = np.concatenate([[newinitial_n0_perfcooling],np.zeros(len(newinitial_n_perfcooling)-1)]) 
+        newinitial_n_perfcooling_sum = np.sum(newinitial_n_perfcooling)
+        newinitial_n_perfcooling_sums.append(newinitial_n_perfcooling_sum)
+        
+        print ("=====",n, newinitial_n0,newinitial_n[0], np.sum(newinitial_n), np.sum(newinitial_n_nocooling)) 
+    
+    return (tot_probs, cool_shares, newinitial_n_sums, newinitial_n_nocooling_sums,newinitial_n_perfcooling_sums)
+
+
+(tot_probs, cool_shares, newinitial_n_sums,newinitial_n_sums_nocooling, newinitial_n_perfcooling_sums) = full_time_evolution(1000, initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+plt.clf()
+plt.plot(np.arange(0,len(newinitial_n_sums))/4, newinitial_n_sums, "black")
+plt.plot(np.arange(0,len(newinitial_n_sums_nocooling))/4, newinitial_n_sums_nocooling, "red")
+plt.plot(np.arange(0,len(newinitial_n_sums_nocooling))/4, newinitial_n_perfcooling_sums, "blue")
+plt.xlabel("Number of Blue Photons")
+plt.ylabel("Share of Remaing Atoms")
+plt.grid(which="both")
+plt.xlim((1, len(newinitial_n_sums)/4))
+plt.ylim((0,1))
+plt.savefig("0newinitial_n_sums2.png")
