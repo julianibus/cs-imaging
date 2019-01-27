@@ -419,6 +419,7 @@ def full_time_evolution(N, initial_state, initial_state_n, n_matrix, repump_mode
     tot_probs = list()
     cool_shares = list()
     newinitial_n_sums = list()
+    newinitial_n0_vector_sums = list()
     newinitial_n_nocooling_sums = list()
     newinitial_n_perfcooling_sums = list()
     times = np.arange(0,N,1)
@@ -485,7 +486,7 @@ def full_time_evolution(N, initial_state, initial_state_n, n_matrix, repump_mode
         newinitial_n0 = newinitial_n0 + cool_share*np.dot(n_matrix, newinitial_n_cooled)[0]
         newinitial_n0_vector = np.concatenate([[newinitial_n0],np.zeros(len(newinitial_n)-1)])         
         newinitial_n_sums.append(np.sum(newinitial_n))  
-        
+        newinitial_n0_vector_sums.append(np.sum(newinitial_n0_vector))
         #newinitial = newinitial * np.sum(newinitial_n)
         newinitial_n_nocooling = np.dot(n_matrix, newinitial_n_nocooling)
         newinitial_n_nocooling_sum = np.sum(newinitial_n_nocooling)
@@ -497,14 +498,14 @@ def full_time_evolution(N, initial_state, initial_state_n, n_matrix, repump_mode
         newinitial_n_perfcooling_sum = np.sum(newinitial_n_perfcooling)
         newinitial_n_perfcooling_sums.append(newinitial_n_perfcooling_sum)
         
-        print ("=====",n, newinitial_n0,newinitial_n[0], np.sum(newinitial_n), np.sum(newinitial_n_nocooling)) 
+        print ("=====",np.sum(newinitial_n) - newinitial_n0, np.sum(newinitial_n_nocooling)) 
     
-    return (tot_probs, cool_shares, newinitial_n_sums, newinitial_n_nocooling_sums,newinitial_n_perfcooling_sums)
+    return (tot_probs, cool_shares, newinitial_n_sums, newinitial_n0_vector_sums, newinitial_n_nocooling_sums,newinitial_n_perfcooling_sums)
 
 
-(tot_probs, cool_shares, newinitial_n_sums,newinitial_n_sums_nocooling, newinitial_n_perfcooling_sums) = full_time_evolution(1000, initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+(tot_probs, cool_shares, newinitial_n_sums, newinitial_n0_vector_sums, newinitial_n_sums_nocooling, newinitial_n_perfcooling_sums) = full_time_evolution(1000, initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
 plt.clf()
-plt.plot(np.arange(0,len(newinitial_n_sums))/4, newinitial_n_sums, "black")
+plt.plot(np.arange(0,len(newinitial_n_sums))/4, np.asarray(newinitial_n_sums), "black")
 plt.plot(np.arange(0,len(newinitial_n_sums_nocooling))/4, newinitial_n_sums_nocooling, "red")
 plt.plot(np.arange(0,len(newinitial_n_sums_nocooling))/4, newinitial_n_perfcooling_sums, "blue")
 plt.xlabel("Number of Blue Photons")

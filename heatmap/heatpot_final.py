@@ -26,9 +26,9 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 5
+nmax = 30
 lambdal = 880
-inten = 5*10**8
+inten = 1.5*10**8 
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
 
@@ -156,16 +156,14 @@ def psit(psip,t, omegat):
 
 
 def IntDr(eta):
-    N = np.arange(0,nmax,1)
-    NT = np.arange(0,nmax,1)
-    Deff = np.zeros((nmax, nmax),dtype=complex)
-    for theta in thetas:
+    	N = np.arange(0,nmax,1)
+    	NT = np.arange(0,nmax,1)
     	D = np.zeros((nmax, nmax),dtype=complex)
     	for n in N:
     		for nt in NT:
     			D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(math.pi/4))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(math.pi/4))**2)*np.exp(-0.5*(eta*np.cos(math.pi/4))**2)
-    	Deff = Deff +  D*np.sin(theta)/2
-    return Deff*thetastep
+    	
+    	return D
 
 	
 	
@@ -176,8 +174,8 @@ def IntD(eta):
     for n in N:
 	    for nt in NT:
 	        D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(thetanormal))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(thetanormal))**2)*np.exp(-0.5*(eta*np.cos(thetanormal))**2)
-    for n in N:
-        D[n] = D[n]/LA.norm(D[n]) #fake normalization
+    #for n in N:
+    #    D[n] = D[n]/LA.norm(D[n]) #fake normalization
 	
     return D
 	
@@ -313,4 +311,12 @@ np.savetxt("F.csv", np.square(np.abs(pathF)), delimiter=",")
 pathR = np.dot(D51,np.dot(U51,D15))#RED IMAGING 6p3/2 
 np.savetxt("R.csv", np.square(np.abs(pathR)), delimiter=",")
 
+Pathtot = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathD)),np.add(0.001969*np.square(np.abs(pathC)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
+PathtotCD = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathF)),np.add(0.001969*np.square(np.abs(pathF)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
+PathtotCDE = np.add(0.25827/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathF)),np.add(0.3678/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathB)),0.201004/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathA))))
 
+#PathtotE = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathD)),np.add(0.001969*np.square(np.abs(pathC)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
+
+np.savetxt("Pathtot.csv", Pathtot, delimiter=",")
+np.savetxt("PathtotCD.csv", PathtotCD, delimiter=",")
+np.savetxt("PathtotCDE.csv", PathtotCDE, delimiter=",")
