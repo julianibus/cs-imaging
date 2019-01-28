@@ -32,7 +32,7 @@ lambdal = 532
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
 ###################
-RamanCooling = True
+RamanCooling = False
 #################
  
 cs = caesium.atom()

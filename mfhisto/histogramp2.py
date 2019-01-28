@@ -414,8 +414,8 @@ initial_state_n = np.zeros(cutoff)
 initial_state_n[7] = 1 #All atoms in ground state
 n_matrix = load_matrix(cutoff) #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
 
-def full_time_evolution(N, off_res_ra, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
-    
+def full_time_evolution(N, ramannn, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+    #off_res_ra is now share of not cooled atoms during raman (n-> n)
     tot_probs = list()
     cool_shares = list()
         
@@ -470,15 +470,15 @@ def full_time_evolution(N, off_res_ra, initial_state, initial_state_n, n_matrix,
         #N VECTOR PART
         newinitial1_n_cooled = np.zeros(cutoff)
         for j in range(0, len(newinitial1_n)-1):
-            newinitial1_n_cooled[j] = newinitial1_n[j+1] 
+            newinitial1_n_cooled[j] = (1-ramannn)*newinitial1_n[j+1] 
         newinitial1_n_cooled[len(newinitial1_n)-1] = 0
         
         newinitial1_n_cooling = np.zeros(cutoff)
         for j in range(1, len(newinitial1_n)):
-            newinitial1_n_cooling[j] = newinitial1_n[j] 
+            newinitial1_n_cooling[j] = (1-ramannn)*newinitial1_n[j] 
         
-        newinitial1_n = newinitial1_n + cool_share*np.dot(n_matrix, newinitial2_n) - newinitial1_n_cooling - off_res_ra*newinitial1_n + cool_share*off_res_ra*newinitial1_n 
-        newinitial2_n = newinitial1_n_cooled + (1-cool_share)*np.dot(n_matrix, newinitial2_n)+ (1-cool_share)*off_res_ra*newinitial1_n 
+        newinitial1_n = newinitial1_n + cool_share*np.dot(n_matrix, newinitial2_n) - newinitial1_n_cooling - ramannn*newinitial1_n
+        newinitial2_n = newinitial1_n_cooled + (1-cool_share)*np.dot(n_matrix, newinitial2_n) + ramannn*newinitial1_n
         #newinitial_n = np.concatenate([[newinitial1_n],[newinitial2_n]])
         #newinitial2_n = newinitial2_n / np.sum(newinitial_n)
         #newinitial1_n = newinitial1_n / np.sum(newinitial_n)
