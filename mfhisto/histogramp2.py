@@ -411,7 +411,7 @@ cutoff = 25  #max n, must matxh size of matrix
 initial_state = np.zeros(len(grounds))
 initial_state[15] = 1 #(4,0)
 initial_state_n = np.zeros(cutoff)
-initial_state_n[7] = 1 #All atoms in ground state
+initial_state_n[0] = 1 #All atoms in ground state
 n_matrix = load_matrix(cutoff) #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
 
 def full_time_evolution(N, ramannn, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
@@ -500,25 +500,25 @@ def full_time_evolution(N, ramannn, initial_state, initial_state_n, n_matrix, re
         
     return (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums,newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon)
 
-(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(100, 0, initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(5000, 0.05, initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
 plt.clf()
-plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial1_n_sums), "blue")
-plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial2_n_sums), "green")
+plt.plot(np.arange(0, len(newinitial1_n_sums))/2, np.asarray(newinitial1_n_sums), "blue")
+plt.plot(np.arange(0, len(newinitial2_n_sums))/2, np.asarray(newinitial2_n_sums), "green")
 plt.xlabel("Cycles")
 plt.ylabel("Population Probability")
 plt.grid(which="both")
-plt.xlim((1, len(newinitial2_n_sums)))
+plt.xlim((0, len(newinitial2_n_sums)/2))
 plt.ylim((0,1))
 plt.savefig("prop-fstates.png")
 plt.show()
 
 plt.clf()
-plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums), "black")
-plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial_n_nocooling_sums), "red")
+plt.plot(np.arange(0, len(newinitial1_n_sums))/2, np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums), "black")
+plt.plot(np.arange(0, len(newinitial2_n_sums))/2, np.asarray(newinitial_n_nocooling_sums), "red")
 plt.xlabel("Cycles")
 plt.ylabel("Share of Remaining Atoms")
 plt.grid(which="both")
-plt.xlim((1, len(newinitial2_n_sums)))
+plt.xlim((0, len(newinitial2_n_sums)/2))
 plt.ylim((0,1))
 plt.savefig("loss-cycles.png")
 plt.show()
@@ -529,7 +529,39 @@ plt.plot(newinitial_n_nocooling_bluephotons_mon, np.asarray(newinitial_n_nocooli
 plt.xlabel("Number of Blue Photons")
 plt.ylabel("Share of Remaining Atoms")
 plt.grid(which="both")
-plt.xlim((1, 25))
+plt.xlim((1, max(newinitial_n_bluephotons_mon)))
 plt.ylim((0,1))
 plt.savefig("loss-bluephotons.png")
+plt.show()
+
+#experiment 4
+rhos = np.arange(0,0.2,0.01)
+measure = list()
+measure2 = list()
+rems = list()
+mons = list()
+for rho in rhos:
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, rho, initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    isel = 0    
+    for i in range(0, len(newinitial1_n_sums)):
+        left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+        if (left > 0.90):
+            isel = i
+    print (rho, isel, newinitial_n_bluephotons_mon[isel])
+    measure.append(newinitial_n_bluephotons_mon[isel])
+    measure2.append(isel/2.0)
+    
+    rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
+    mons.append(newinitial_n_bluephotons_mon)
+    
+    
+plt.plot(rhos, measure)
+plt.show()
+plt.plot(rhos, measure2)
+plt.show()
+
+for i in range(0,len(rhos)):
+    plt.plot(mons[i], rems[i])
+plt.xlim((1, max(mons[0])))
+plt.ylim((0,1))  
 plt.show()

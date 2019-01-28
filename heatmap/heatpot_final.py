@@ -26,7 +26,7 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 30
+nmax = 26
 lambdal = 880
 inten = 1.5*10**8 
 xstep = 0.25  * 10**(-8)
@@ -207,8 +207,8 @@ def IntU(omega, omegat, ti):
             print (nl)
             for ntl in NT:
                 U[nl,ntl] = Unn(nl,ntl, omega , omegat, ti)
-        for nl in N:
-            U[nl] = U[nl]/LA.norm(U[nl])
+        #for nl in N:
+        #    U[nl] = U[nl]/LA.norm(U[nl])
             
         return np.copy(U)
     else:
