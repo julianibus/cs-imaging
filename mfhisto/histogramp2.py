@@ -562,6 +562,6 @@ plt.show()
 
 for i in range(0,len(rhos)):
     plt.plot(mons[i], rems[i])
-plt.xlim((1, max(mons[0])))
+plt.xlim((1, 300)
 plt.ylim((0,1))  
 plt.show()
