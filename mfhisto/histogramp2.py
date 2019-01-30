@@ -10,6 +10,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.ticker as mtick
 
 mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
@@ -532,17 +533,17 @@ plt.savefig("loss-bluephotons.png")
 plt.show()
 
 #experiment 4: Dependencay on rhop
-rhos = np.arange(0,0.2,0.01)
+rhos = np.arange(0,0.2,0.02)
 measure = list()
 measure2 = list()
 rems = list()
 mons = list()
 for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, rho, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, rho, 1,1,3,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.80):
+        if (left > 0.95):
             isel = i
     print (rho, isel, newinitial_n_bluephotons_mon[isel])
     measure.append(newinitial_n_bluephotons_mon[isel])
@@ -552,20 +553,30 @@ for rho in rhos:
     mons.append(newinitial_n_bluephotons_mon)
     
     
-plt.plot(rhos, measure)
-plt.show()
-plt.plot(rhos, measure2)
-plt.show()
+plt.figure(figsize=(10,4))
+plt.subplot(131)
+plt.plot(rhos, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
+plt.xlabel(r'Raman $\rho$')
+plt.ylabel("Blue Photon Count (5% Loss)")
+plt.subplot(132)
+plt.plot(rhos, np.asarray(measure2)/1000, marker = "o", color='black')
+plt.xlabel(r'Raman $\rho$')
+plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
+plt.subplot(133)
 
-for i in range(0,len(rhos)):
-    plt.plot(mons[i], rems[i])
-plt.xlim((1, 300))
+for i in np.arange(1,len(rhos),3):
+    plt.plot(mons[i], rems[i], label=str(rhos[i]))
+plt.xlim((1, 5000))
 plt.ylim((0,1))  
+plt.xlabel("Blue Photon Count")
+plt.ylabel("Remaining Atoms")
+plt.tight_layout()
+plt.legend(title=r'$\rho$',loc='upper right')
 plt.show()
 
 
 #Experiment 5: Dependency on Nraman und Nrepump
-pairs = [(1,5),(1,4),(1,3),(1,2),(1,1)]
+pairs = [(1,5),(1,4),(1,3),(1,2),(1,1),(2,1),(3,1),(4,1),(5,1),(6,1)]
 ratios = list()
 measure = list()
 measure2 = list()
@@ -576,11 +587,11 @@ for pair in pairs:
     NRepump = pair[1]
     ratio = pair[1]/float(pair[0])
     ratios.append(ratio)
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, 0.05, NRaman,NRepump,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, 0.02, NRaman,NRepump,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.80):
+        if (left > 0.95):
             isel = i
     print (pair, isel, newinitial_n_bluephotons_mon[isel])
     measure.append(newinitial_n_bluephotons_mon[isel])
@@ -589,16 +600,31 @@ for pair in pairs:
     rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
     mons.append(newinitial_n_bluephotons_mon)
     
-plt.plot(ratios, measure)
-plt.show()
-plt.plot(ratios, measure2)
+plt.figure(figsize=(10,4))
+plt.subplot(131)
+plt.plot(ratios, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
+plt.xlabel(r'Ratio $N_{Repump}/N_{Raman}$')
+plt.ylabel("Blue Photon Count (5% Loss)")
+plt.ylim(0,700)
+plt.subplot(132)
+plt.plot(ratios, np.asarray(measure2)/1000, marker = "o", color='black')
+plt.xlabel(r'Ratio $N_{Repump} / N_{Raman}$')
+plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
+plt.ylim(0,12.3)
+plt.subplot(133)
+
+for i in range(0,len(rhos)):
+    plt.plot(mons[i], rems[i], label=str("{:.2f}".format(ratios[i])))
+plt.xlim((1, 3000))
+plt.ylim((0,1))  
+plt.xlabel("Blue Photon Count")
+plt.ylabel("Remaining Atoms")
+plt.tight_layout()
+plt.legend(title=r'$N_{Repump} / N_{Raman}$',loc='upper right')
 plt.show()
 
-for i in range(0,len(ratios)):
-    plt.plot(mons[i], rems[i])
-#plt.xlim((1, 300))
-plt.ylim((0,1))  
-plt.show()
+
+
 
 #Experiment 6
 rhos = np.arange(0,10)
@@ -607,11 +633,11 @@ measure2 = list()
 rems = list()
 mons = list()
 for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(5000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.97):
+        if (left > 0.95):
             isel = i
     print (rho, isel, newinitial_n_bluephotons_mon[isel])
     measure.append(newinitial_n_bluephotons_mon[isel])
@@ -619,15 +645,25 @@ for rho in rhos:
     
     rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
     mons.append(newinitial_n_bluephotons_mon)
-
     
-plt.plot(rhos, measure)
-plt.show()
-plt.plot(rhos, measure2)
-plt.show()
+    
+plt.figure(figsize=(10,4))
+plt.subplot(131)
+plt.plot(rhos, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
+plt.xlabel("Raman $\Delta n$")
+plt.ylabel("Blue Photon Count (5% Loss)")
+plt.subplot(132)
+plt.plot(rhos, np.asarray(measure2)/1000, marker = "o", color='black')
+plt.xlabel("Raman $\Delta n$")
+plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
+plt.subplot(133)
 
 for i in range(0,len(rhos)):
-    plt.plot(mons[i], rems[i])
-plt.xlim((1, 300))
+    plt.plot(mons[i], rems[i], label=str(rhos[i]))
+plt.xlim((1, 200))
 plt.ylim((0,1))  
+plt.xlabel("Blue Photon Count")
+plt.ylabel("Remaining Atoms")
+plt.tight_layout()
+plt.legend(title=r'$\Delta n$',loc='upper right')
 plt.show()
