@@ -315,8 +315,11 @@ Pathtot = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.
 PathtotCD = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathF)),np.add(0.001969*np.square(np.abs(pathF)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
 PathtotCDE = np.add(0.25827/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathF)),np.add(0.3678/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathB)),0.201004/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathA))))
 
+PathtotE = np.add(0.30564774229869446*np.square(np.abs(pathF)),np.add(0*np.square(np.abs(pathE)),np.add(0.019265386644210684*np.square(np.abs(pathD)),np.add(0.002328783000948544*np.square(np.abs(pathC)),np.add(0.43502588982218926*np.square(np.abs(pathB)),0.2377321982339569*np.square(np.abs(pathA)))))))
+
 #PathtotE = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathD)),np.add(0.001969*np.square(np.abs(pathC)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
 
 np.savetxt("Pathtot.csv", Pathtot, delimiter=",")
 np.savetxt("PathtotCD.csv", PathtotCD, delimiter=",")
 np.savetxt("PathtotCDE.csv", PathtotCDE, delimiter=",")
+np.savetxt("PathtotE.csv", PathtotE, delimiter=",")

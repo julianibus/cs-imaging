@@ -394,7 +394,7 @@ def experiment2():
 ## EXPERIMENT 3: TIME EVOLUTION INCLUDING TEMPERATURE
 #Loading Matrix
 def load_matrix(cutoff):
-    totmatrix = np.loadtxt("Pathtot.csv",delimiter=",")[0:cutoff,0:cutoff]
+    totmatrix = np.loadtxt("PathtotE.csv",delimiter=",")[0:cutoff,0:cutoff]
     plt.matshow(totmatrix)
     rowsums = list()
     columnsums = list()
@@ -633,7 +633,7 @@ measure2 = list()
 rems = list()
 mons = list()
 for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(5000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(50000, 0.02, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]

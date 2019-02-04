@@ -19,7 +19,7 @@ c = 2.997*10**8;
 hbar = 1.0545718*10**(-34)
 m = 132.90 * 1.660539*10**(-27) 
 
-nmax = 15
+nmax = 25
 
 g23 = 4.05*10**6;
 g34 = 6.23*10**6;
@@ -36,12 +36,13 @@ g21 = 1.84*10**6;
 gammas = [g21, g23, g35, g41, g64, g51, g65, g75, g27, g26, g34]
 gammaslabel = ["g21","g23", "g35", "g41", "g64", "g51", "g65", "g75", "g27", "g26", "g34"]
 overlaps = list()
+avgoverlaps = list()
 
 def psix(x,n,omega):
     expression = 1/(np.sqrt(2**n*factorial(n)))*((m*omega)/(np.pi*hbar))**(1/4)*np.exp((-m*omega*x**2)/(2*hbar))*scipy.special.eval_hermite(n, np.sqrt((m*omega)/hbar)*x)
     return expression/LA.norm(expression)
 
-xstep = 0.25 * 10**(-8)
+xstep = 0.5 * 10**(-8)
 x = np.arange(-0.4*10**(-6), +0.4*10**(-6), xstep)
 X,Y = np.meshgrid(x,x)
 top = toeplitz(np.concatenate([[-2,1], np.zeros(int(len(x)-2))]))
@@ -61,19 +62,27 @@ def psit(psip,ta, omegat):
     EB = expm(B)
     res = np.dot(EB,psip)
 	#print (initial_evol, final)
-    ns = np.arange(0,16)
+    ns = np.arange(0,21)
     overlap = list()
+    avgoverlap = 0
     for k in ns:
-        overlap.append(np.dot(psix(x,k,9473238),res))
+        ov = np.dot(psix(x,k,658860.1901609472),res)
+        overlap.append(ov)
+    
     overlaps.append(overlap)
+    print(((np.asarray(np.nan_to_num(np.square(np.abs(overlap))))* ns)))
+    avgoverlap =  np.sum((np.asarray(np.nan_to_num(np.square(np.abs(overlap))))* (ns)))
+    #print (avgoverlap)
+    avgoverlaps.append(avgoverlap)
+    
 	
     #print(mat)
     return res
 
-initial = psix(x,6 ,9473238)
+initial = psix(x,2 ,658860.1901609472)
 
 tstart = 0.1*10**(-9)
-tstop = 10000*10**(-9)
+tstop = 20000*10**(-9)
 tstep = 400*10**(-9)
 
 timevol = list()
@@ -81,18 +90,26 @@ T = np.arange(tstart, tstop, tstep)
 for td in np.arange(tstart, tstop, tstep):
    # print ("hey")
     print (td)
-    timevol.append(psit(initial, td,673904))
+    timevol.append(psit(initial, td,1014198.03611524185))#214198.03611524185
     #print (psit(cpsi, td, 2*10**5))
     #print (tstep*psit(cpsi, td, 2*10**5))
 
-plt.figure(200)
+plt.figure(figsize=(7,5))
 plt.imshow(np.square(np.abs(timevol)))
 plt.axes().set_aspect("auto")
 plt.show()
-plt.figure(300)
+plt.figure(figsize=(7,7))
 lines = plt.plot(T, np.square(np.abs(overlaps)))
 plt.axes().set_aspect("auto")
 plt.legend(lines[:len(lines)], np.arange(0,len(lines),1))
 plt.ylabel("Overlap")
 plt.xlabel("Time (s)")
+plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+plt.show()
+
+plt.figure(figsize=(7,5))
+plt.plot(T, avgoverlaps, color="black", linewidth=1.5)
+plt.ylabel("<n'>")
+plt.xlabel("Time (s)")
+plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 plt.show()
