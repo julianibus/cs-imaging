@@ -394,7 +394,7 @@ def experiment2():
 ## EXPERIMENT 3: TIME EVOLUTION INCLUDING TEMPERATURE
 #Loading Matrix
 def load_matrix(cutoff):
-    totmatrix = np.loadtxt("PathtotE.csv",delimiter=",")[0:cutoff,0:cutoff]
+    totmatrix = np.loadtxt("PathtotCD.csv",delimiter=",")[0:cutoff,0:cutoff]
     plt.matshow(totmatrix)
     rowsums = list()
     columnsums = list()

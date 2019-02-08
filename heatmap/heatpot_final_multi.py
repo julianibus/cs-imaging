@@ -27,7 +27,7 @@ import math
 
 #CONFIGURATION####
 nmax = 10
-lambdal = 532
+lambdal = 1064
 ### INTENSITY MULTI ######
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
@@ -180,8 +180,8 @@ for inten in intensities:
         for n in N:
     	    for nt in NT:
     	        D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(0))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(0))**2)*np.exp(-0.5*(eta*np.cos(0))**2)
-        for n in N:
-            D[n] = D[n]/LA.norm(D[n]) #fake normalization
+        #for n in N:
+        #    D[n] = D[n]/LA.norm(D[n]) #fake normalization
     	
         return D
     	
@@ -211,8 +211,8 @@ for inten in intensities:
             print (nl)
             for ntl in NT:
                 U[nl,ntl] = Unn(nl,ntl, omega , omegat, ti)
-        for nl in N:
-            U[nl] = U[nl]/LA.norm(U[nl])
+        #for nl in N:
+        #    U[nl] = U[nl]/LA.norm(U[nl])
         
         return np.copy(U)
     	

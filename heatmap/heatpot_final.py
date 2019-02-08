@@ -27,7 +27,7 @@ import math
 
 #CONFIGURATION####
 nmax = 26
-lambdal = 880
+lambdal = 1064
 inten = 1.5*10**8 
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
@@ -92,24 +92,25 @@ latticedepths1 = list() # in hbar omega
 latticedepths2 = list() # in lattice recoil energies
 for level in levels:
         #098765', '#000009'
-	pots = list()
-	scatts = list()
-	pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
-
-	omega = math.sqrt(np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
-	if (pot < 0):
-		omegas.append(-omega)
-	else:
-		omegas.append(omega)
+        pots = list()
+        scatts = list()
+        pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+        pot = pot*(-1)
+        omega = math.sqrt(np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+        if (pot < 0):
+            omegas.append(-omega)
+        else:
+            omegas.append(omega)
     
-	latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
-	latticedepths1.append(latticedepth1)
+        latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
+        latticedepths1.append(latticedepth1)
 
 
 
     
 for decayi in range(0,len(decays)):
     pot, scatt = cs.GetFactors(lambdal*10**-9, decaylevels[decayi], "transitions_complemented.csv")
+    pot = pot*(-1)
     omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
     #if (pot < 0): omega = omega*(-1) #dont negate here as sign not important for calculating the lamb dicke parameter
     ELatRec = ((hbar*(2*math.pi)/(decays[decayi]))**2)/(2*m)
@@ -191,7 +192,7 @@ def Unn(n,nt, omega, omegat, td):
 	initial_evol = psit(initial, td, omegat)
 	#print (initial_evol, final)
 	overlap = np.dot(final,initial_evol)
-	#print (overlap)
+	print (overlap)
 	return overlap
 	
 	
