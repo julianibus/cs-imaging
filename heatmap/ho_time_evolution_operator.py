@@ -79,7 +79,7 @@ def psit(psip,ta, omegat):
     #print(mat)
     return res
 
-initial = psix(x,2 ,658860.1901609472)
+initial = psix(x,0 ,658860.1901609472)
 
 tstart = 0.1*10**(-9)
 tstop = 20000*10**(-9)
@@ -90,7 +90,7 @@ T = np.arange(tstart, tstop, tstep)
 for td in np.arange(tstart, tstop, tstep):
    # print ("hey")
     print (td)
-    timevol.append(psit(initial, td,1014198.03611524185))#214198.03611524185
+    timevol.append(psit(initial, td,214198.036115241855))
     #print (psit(cpsi, td, 2*10**5))
     #print (tstep*psit(cpsi, td, 2*10**5))
 
