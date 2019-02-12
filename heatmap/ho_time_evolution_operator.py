@@ -37,6 +37,7 @@ gammas = [g21, g23, g35, g41, g64, g51, g65, g75, g27, g26, g34]
 gammaslabel = ["g21","g23", "g35", "g41", "g64", "g51", "g65", "g75", "g27", "g26", "g34"]
 overlaps = list()
 avgoverlaps = list()
+totoverlaps = list()
 
 def psix(x,n,omega):
     expression = 1/(np.sqrt(2**n*factorial(n)))*((m*omega)/(np.pi*hbar))**(1/4)*np.exp((-m*omega*x**2)/(2*hbar))*scipy.special.eval_hermite(n, np.sqrt((m*omega)/hbar)*x)
@@ -72,14 +73,16 @@ def psit(psip,ta, omegat):
     overlaps.append(overlap)
     print(((np.asarray(np.nan_to_num(np.square(np.abs(overlap))))* ns)))
     avgoverlap =  np.sum((np.asarray(np.nan_to_num(np.square(np.abs(overlap))))* (ns)))
+    totoverlap = np.sum(np.asarray(np.nan_to_num(np.square(np.abs(overlap)))))
     #print (avgoverlap)
     avgoverlaps.append(avgoverlap)
+    totoverlaps.append(totoverlap)
     
 	
     #print(mat)
     return res
 
-initial = psix(x,0 ,658860.1901609472)
+initial = psix(x,3 ,658860.1901609472)
 
 tstart = 0.1*10**(-9)
 tstop = 20000*10**(-9)
@@ -100,6 +103,7 @@ plt.axes().set_aspect("auto")
 plt.show()
 plt.figure(figsize=(7,7))
 lines = plt.plot(T, np.square(np.abs(overlaps)))
+plt.plot(T, totoverlaps, "--b")
 plt.axes().set_aspect("auto")
 plt.legend(lines[:len(lines)], np.arange(0,len(lines),1))
 plt.ylabel("Overlap")
@@ -109,6 +113,7 @@ plt.show()
 
 plt.figure(figsize=(7,5))
 plt.plot(T, avgoverlaps, color="black", linewidth=1.5)
+plt.plot(T, 3+10*np.square(np.sin(T*214198.036115241855)), "--r")
 plt.ylabel("<n'>")
 plt.xlabel("Time (s)")
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
