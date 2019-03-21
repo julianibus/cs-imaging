@@ -188,39 +188,23 @@ grounds_posdict = {
         (4,4): 15,            
 				}
 
-def create_excitation_matrix(mode, deltaf):
+def create_excitation_matrix_degenerate():
     ematrix = list()
-    if mode == "pi":
-        for gstate in grounds:
-            estate = (gstate[0]+deltaf,gstate[1] )
-            row = np.zeros(len(exciteds_posdict))
-            try:
-                estate_index = exciteds_posdict[estate]
-                row[estate_index] = 1
-            except Exception:
-                dummy = 0
-            ematrix.append(row)
-    elif mode == "sigma+":
-        for gstate in grounds:
-            estate = (gstate[0]+deltaf,gstate[1]+1)
-            row = np.zeros(len(exciteds_posdict))
-            try:
-                estate_index = exciteds_posdict[estate]
-                row[estate_index] = 1
-            except Exception:
-                dummy = 0
-            ematrix.append(row)
-    elif mode == "sigma-":
-        for gstate in grounds:
-            estate = (gstate[0]+deltaf,gstate[1]-1)
-            row = np.zeros(len(exciteds_posdict))
-            try:
-                estate_index = exciteds_posdict[estate]
-                row[estate_index] = 1
-            except Exception:
-                dummy = 0
-            
-            ematrix.append(row)
+    
+    
+    #sigma+
+    for gstate in grounds:
+        if (gstate[0] == 3):
+            estate = (gstate[0]-1,gstate[1]+1) #Raman Repumper to cpmplete cooling cycle
+        elif (gstate[0]== 4):
+            estate = (gstate[0]+0,gstate[1]) #%Repumper due to lattice            
+        row = np.zeros(len(exciteds_posdict))
+        try:
+            estate_index = exciteds_posdict[estate]
+            row[estate_index] = 1
+        except Exception:
+            dummy = 0
+        ematrix.append(row)
     return np.transpose(ematrix)
 
 Fcolors ={2: 'red',
@@ -268,7 +252,25 @@ def raman_matrix(mode, deltaf):
             ematrix.append(row)
     return np.transpose(ematrix)
 
+def raman_matrix_degenerate():
+    ematrix = list()
 
+    for gstate in grounds:
+        if gstate[0] == 3:  ###DUE TO THE EXTERNAL MAGNETIC FIEL ONLY F=§ IS RAMAN DRIVEN
+            estate = (gstate[0],gstate[1] - 2)
+        else:
+            estate = (gstate[0],gstate[1])
+        row = np.zeros(len(grounds_posdict))
+        try:
+            estate_index = grounds_posdict[estate]
+            row[estate_index] = 1
+        except Exception:
+            gstate_index = grounds_posdict[gstate]
+            row[gstate_index] = 1
+        ematrix.append(row)
+
+    return np.transpose(ematrix)
+    
 
 def barplot(pil, strings,title, xtitle, ytitle):
     plt.figure(figsize=(10,5))
@@ -310,9 +312,9 @@ barplot(np.asarray(maxdecays), exciteds_strings, "", "Excited State (F, mF)", "L
 ## EXPERIMENT 2: Full Cycle
 
 initial_state = np.zeros(len(grounds))
-initial_state[11] = 1 #(4,4)
+initial_state[4] = 1 #(4,4)
 
-def timeevolution_movie(N, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+def timeevolution_movie(N, initial_state):    
     
     tot_probs = list()
     cool_shares = list()
@@ -324,16 +326,15 @@ def timeevolution_movie(N, initial_state, repump_mode, repump_deltaf, raman_mode
     barplot(newinitial, grounds_strings, "","","")
     plt.savefig("-1.png")    
     for n in range(0,N):
-        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix_degenerate(),np.dot(raman_matrix_degenerate(),newinitial)))
         barplot(newinitial, grounds_strings, "","","")
         plt.savefig(str(n)+".png")
         tot_prob = (np.sum(newinitial))
         sum3 = sum(newinitial[0:7])
         sum4 = sum(newinitial[7:16])
-        if raman_deltaf == 1:
-            cool_share = sum3/(sum3 +sum4)
-        elif raman_deltaf == -1:
-            cool_share = sum4/(sum3 +sum4)
+
+        cool_share = sum3/(sum3 +sum4)
+        
         tot_probs.append(tot_prob)
         cool_shares.append(cool_share)
         #print(tot_prob, cool_share)
@@ -343,7 +344,7 @@ def timeevolution_movie(N, initial_state, repump_mode, repump_deltaf, raman_mode
     #plt.plot(times, cool_shares)
     return tot_prob, cool_share
 
-def timeevolution(N, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+def timeevolution(N, initial_state):    #DEGENERATE
     
     tot_probs = list()
     cool_shares = list()
@@ -352,15 +353,14 @@ def timeevolution(N, initial_state, repump_mode, repump_deltaf, raman_mode, rama
     newinitial = initial_state
     
     for n in range(0,N):
-        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix_degenerate(),np.dot(raman_matrix_degenerate(),newinitial)))
         #barplot(newinitial, grounds_strings, "","","")
         tot_prob = (np.sum(newinitial))
         sum3 = sum(newinitial[0:7])
         sum4 = sum(newinitial[7:16])
-        if raman_deltaf == 1:
-            cool_share = sum3/(sum3 +sum4)
-        elif raman_deltaf == -1:
-            cool_share = sum4/(sum3 +sum4)
+
+        cool_share = sum3/(sum3 +sum4)
+
         tot_probs.append(tot_prob)
         cool_shares.append(cool_share)
         #print(tot_prob, cool_share)
@@ -370,31 +370,32 @@ def timeevolution(N, initial_state, repump_mode, repump_deltaf, raman_mode, rama
     #plt.plot(times, cool_shares)
     return tot_prob, cool_share
 
-def experiment2():
-    mode_labels = {"sigma+": "s+",
-                   "sigma-": "s-",
-                   "pi":"pi"}
-    label_strings = list()
-    eq_tot_probs = list()
-    eq_cool_shares = list()
-    for repump_mode in ["pi", "sigma+", "sigma-"]:
-        for repump_deltaf in [0,+1]:
-            for raman_mode in ["pi", "sigma+", "sigma-"]:
-                for raman_deltaf in [-1,+1]:
-                    label = "Re " + mode_labels[repump_mode] + " " +  str(repump_deltaf) + " Ra " + mode_labels[raman_mode] + " " + str(raman_deltaf)
-                    print(label)
-                    label_strings.append( label)
-                    eq_tot_prob, eq_cool_share = timeevolution(60, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf)
-                    eq_tot_probs.append(eq_tot_prob)
-                    eq_cool_shares.append(eq_cool_share)
-    barplot(eq_tot_probs, label_strings, "", "Configuration", "Prob")
-    barplot(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
+#def experiment2(): #### NO USE ANY MORE FOR THAT IN THE DEGENERATE CASE (ALL BEAM PARAM;ETERS FIXED)
+#    mode_labels = {"sigma+": "s+",
+#                   "sigma-": "s-",
+#                   "pi":"pi"}
+#    label_strings = list()
+#    eq_tot_probs = list()
+#    eq_cool_shares = list()
+#    for repump_mode in ["pi", "sigma+", "sigma-"]:
+#        for repump_deltaf in [0,+1]:
+#            for raman_mode in ["pi", "sigma+", "sigma-"]:
+#                for raman_deltaf in [-1,+1]:
+#                    label = "Re " + mode_labels[repump_mode] + " " +  str(repump_deltaf) + " Ra " + mode_labels[raman_mode] + " " + str(raman_deltaf)
+#                    print(label)
+#                    label_strings.append( label)
+#                    eq_tot_prob, eq_cool_share = timeevolution(60, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf)
+#                    eq_tot_probs.append(eq_tot_prob)
+#                    eq_cool_shares.append(eq_cool_share)
+#    barplot(eq_tot_probs, label_strings, "", "Configuration", "Prob")
+#    barplot(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
+#
 
 
 ## EXPERIMENT 3: TIME EVOLUTION INCLUDING TEMPERATURE
 #Loading Matrix
 def load_matrix(cutoff):
-    totmatrix = np.loadtxt("Pathtot.csv",delimiter=",")[0:cutoff,0:cutoff]
+    totmatrix = np.loadtxt("PathtotCDE.csv",delimiter=",")[0:cutoff,0:cutoff]
     plt.matshow(totmatrix)
     rowsums = list()
     columnsums = list()
@@ -408,14 +409,14 @@ def load_matrix(cutoff):
         print (i, columnsum)  
     return totmatrix
 
-cutoff = 25  #max n, must matxh size of matrix
+cutoff = 25  #max n, must matxh size of matrix #DEPTH OF GROUND STATE POTENTIAL
 initial_state = np.zeros(len(grounds))
-initial_state[15] = 1 #(4,0)
+initial_state[4] = 1 #(4,4)
 initial_state_n = np.zeros(cutoff)
 initial_state_n[0] = 1 #All atoms in ground state
 n_matrix = load_matrix(cutoff) #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
 
-def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix):    
     #off_res_ra is now share of not cooled atoms during raman (n-> n)
     tot_probs = list()
     cool_shares = list()
@@ -434,14 +435,13 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
     newinitial_n_nocooling_bluephotons_mon = list()
     newinitial_n_nocooling_sums = list()
     for n in range(0,N):
-        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix_degenerate(),np.dot(raman_matrix_degenerate(),newinitial)))
         tot_prob = (np.sum(newinitial))
         sum3 = sum(newinitial[0:7])
         sum4 = sum(newinitial[7:16])
-        if raman_deltaf == 1:
-            cool_share = sum3/(sum3 +sum4)
-        elif raman_deltaf == -1:
-            cool_share = sum4/(sum3 +sum4)
+        
+        cool_share = sum3/(sum3 +sum4)
+        
         tot_probs.append(tot_prob)
         cool_shares.append(cool_share)
         
@@ -496,9 +496,9 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
     return (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums,newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon)
 
 
-sqrt(-1)
+sqrt(-1) ## STOP PROGRAM HERE BEFORE THE EXPERIMENTS ####
 
-(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(10000, 0.01,1,1, 3,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, 0.01,1,1, 2,initial_state, initial_state_n, n_matrix)
 plt.clf()
 plt.plot(np.arange(0, len(newinitial1_n_sums)), np.asarray(newinitial1_n_sums), "blue")
 plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial2_n_sums), "green")
