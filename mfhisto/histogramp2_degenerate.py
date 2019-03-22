@@ -288,6 +288,7 @@ def barplot(pil, strings,title, xtitle, ytitle):
     plt.title(title)
     plt.xlabel(xtitle)
     plt.ylabel(ytitle)
+    plt.ylim(0,1)
     plt.xticks(rotation=90) # horizontal lines
 
 ## EXPERIMENT 1: DECAY HISTOGRAMS
@@ -312,7 +313,7 @@ barplot(np.asarray(maxdecays), exciteds_strings, "", "Excited State (F, mF)", "L
 ## EXPERIMENT 2: Full Cycle
 
 initial_state = np.zeros(len(grounds))
-initial_state[4] = 1 #(4,4)
+initial_state[6] = 1 #(4,4)
 
 def timeevolution_movie(N, initial_state):    
     
@@ -498,7 +499,7 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
 
 sqrt(-1) ## STOP PROGRAM HERE BEFORE THE EXPERIMENTS ####
 
-(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, 0.01,1,1, 2,initial_state, initial_state_n, n_matrix)
+(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, 0.04,1,1, 2,initial_state, initial_state_n, n_matrix)
 plt.clf()
 plt.plot(np.arange(0, len(newinitial1_n_sums)), np.asarray(newinitial1_n_sums), "blue")
 plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial2_n_sums), "green")
@@ -590,7 +591,46 @@ for pair in pairs:
     (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, 0.02, NRaman,NRepump,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
+        left = newinitial1_n_sums[i] + newinitial2_n_sumrhos = np.arange(0,10)
+measure = list()
+measure2 = list()
+rems = list()
+mons = list()
+for rho in rhos:
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(100000, 0.02, 1,1,rho,initial_state, initial_state_n, n_matrix)
+    isel = 0    
+    for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+        if (left > 0.95):
+            isel = i
+    print (rho, isel, newinitial_n_bluephotons_mon[isel])
+    measure.append(newinitial_n_bluephotons_mon[isel])
+    measure2.append(isel)
+    
+    rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
+    mons.append(newinitial_n_bluephotons_mon)
+    
+    
+plt.figure(figsize=(10,4))
+plt.subplot(131)
+plt.plot(rhos, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
+plt.xlabel("Raman $\Delta n$")
+plt.ylabel("Blue Photon Count (5% Loss)")
+plt.subplot(132)
+plt.plot(rhos, np.asarray(measure2)/1000, marker = "o", color='black')
+plt.xlabel("Raman $\Delta n$")
+plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
+plt.subplot(133)
+
+for i in range(0,len(rhos)):
+    plt.plot(mons[i], rems[i], label=str(rhos[i]))
+plt.xlim((1, 200))
+plt.ylim((0,1))  
+plt.xlabel("Blue Photon Count")
+plt.ylabel("Remaining Atoms")
+plt.tight_layout()
+plt.legend(title=r'$\Delta n$',loc='upper right')
+plt.show()s[i]
         if (left > 0.95):
             isel = i
     print (pair, isel, newinitial_n_bluephotons_mon[isel])
@@ -633,7 +673,7 @@ measure2 = list()
 rems = list()
 mons = list()
 for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(100000, 0.02, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(100000, 0.02, 1,1,rho,initial_state, initial_state_n, n_matrix)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
