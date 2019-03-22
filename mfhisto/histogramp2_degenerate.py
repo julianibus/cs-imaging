@@ -195,9 +195,9 @@ def create_excitation_matrix_degenerate():
     #sigma+
     for gstate in grounds:
         if (gstate[0] == 3):
-            estate = (gstate[0]-1,gstate[1]+1) #Raman Repumper to cpmplete cooling cycle
+            estate = (gstate[0],gstate[1]+1) #Raman Repumper to cpmplete cooling cycle
         elif (gstate[0]== 4):
-            estate = (gstate[0]+0,gstate[1]) #%Repumper due to lattice            
+            estate = (gstate[0],gstate[1]+0) #%Repumper due to lattice            
         row = np.zeros(len(exciteds_posdict))
         try:
             estate_index = exciteds_posdict[estate]
@@ -252,12 +252,20 @@ def raman_matrix(mode, deltaf):
             ematrix.append(row)
     return np.transpose(ematrix)
 
+
 def raman_matrix_degenerate():
     ematrix = list()
 
     for gstate in grounds:
         if gstate[0] == 3:  ###DUE TO THE EXTERNAL MAGNETIC FIEL ONLY F=§ IS RAMAN DRIVEN
-            estate = (gstate[0],gstate[1] - 2)
+            if gstate[1] == 3:
+                estate = (gstate[0],gstate[1] - 2)
+            elif gstate[1] == 2:
+                estate = (gstate[0],gstate[1] - 1)
+            elif gstate[1] == 1:
+                estate = (gstate[0],gstate[1] - randint(0,1))
+            else:
+                estate = (gstate[0],gstate[1] - randint(-1,1))
         else:
             estate = (gstate[0],gstate[1])
         row = np.zeros(len(grounds_posdict))
@@ -331,18 +339,18 @@ def timeevolution_movie(N, initial_state):
         barplot(newinitial, grounds_strings, "","","")
         plt.savefig(str(n)+".png")
         tot_prob = (np.sum(newinitial))
-        sum3 = sum(newinitial[0:7])
-        sum4 = sum(newinitial[7:16])
+        sum3 = sum(newinitial[6:7])
+        sum4 = sum(newinitial[7:16])+sum(newinitial[0:6])
 
         cool_share = sum3/(sum3 +sum4)
         
         tot_probs.append(tot_prob)
         cool_shares.append(cool_share)
         #print(tot_prob, cool_share)
-    #plt.figure(figsize=(10,5))
-    #plt.plot(times, tot_probs)
-    #plt.figure(figsize=(10,5))
-    #plt.plot(times, cool_shares)
+    plt.figure(figsize=(10,5))
+    plt.plot(times, tot_probs)
+    plt.figure(figsize=(10,5))
+    plt.plot(times, cool_shares)
     return tot_prob, cool_share
 
 def timeevolution(N, initial_state):    #DEGENERATE
@@ -438,9 +446,9 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
     for n in range(0,N):
         newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix_degenerate(),np.dot(raman_matrix_degenerate(),newinitial)))
         tot_prob = (np.sum(newinitial))
-        sum3 = sum(newinitial[0:7])
-        sum4 = sum(newinitial[7:16])
-        
+        sum3 = sum(newinitial[6:7]) + 0.5*sum(newinitial[5:6]) 
+        sum4 = sum(newinitial[7:16])+sum(newinitial[0:6])
+        ## only the atoms in F=3 mf = -1,..3 can be cooled with deltan = 2 (participate fully in the cycle)
         cool_share = sum3/(sum3 +sum4)
         
         tot_probs.append(tot_prob)
@@ -496,10 +504,10 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
         
     return (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums,newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon)
 
-
+print ("STOP")
 sqrt(-1) ## STOP PROGRAM HERE BEFORE THE EXPERIMENTS ####
 
-(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, 0.04,1,1, 2,initial_state, initial_state_n, n_matrix)
+(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(1000, 0.04,1,1, 2,initial_state, initial_state_n, n_matrix)
 plt.clf()
 plt.plot(np.arange(0, len(newinitial1_n_sums)), np.asarray(newinitial1_n_sums), "blue")
 plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial2_n_sums), "green")
@@ -540,7 +548,7 @@ measure2 = list()
 rems = list()
 mons = list()
 for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, rho, 1,1,3,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, rho, 1,1,2,initial_state, initial_state_n, n_matrix)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
@@ -588,49 +596,10 @@ for pair in pairs:
     NRepump = pair[1]
     ratio = pair[1]/float(pair[0])
     ratios.append(ratio)
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, 0.02, NRaman,NRepump,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
-    isel = 0    
-    for i in range(0, len(newinitial1_n_sums)):
-        left = newinitial1_n_sums[i] + newinitial2_n_sumrhos = np.arange(0,10)
-measure = list()
-measure2 = list()
-rems = list()
-mons = list()
-for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(100000, 0.02, 1,1,rho,initial_state, initial_state_n, n_matrix)
+    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, 0.02, NRaman,NRepump,2,initial_state, initial_state_n, n_matrix)
     isel = 0    
     for i in range(0, len(newinitial1_n_sums)):
         left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.95):
-            isel = i
-    print (rho, isel, newinitial_n_bluephotons_mon[isel])
-    measure.append(newinitial_n_bluephotons_mon[isel])
-    measure2.append(isel)
-    
-    rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
-    mons.append(newinitial_n_bluephotons_mon)
-    
-    
-plt.figure(figsize=(10,4))
-plt.subplot(131)
-plt.plot(rhos, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
-plt.xlabel("Raman $\Delta n$")
-plt.ylabel("Blue Photon Count (5% Loss)")
-plt.subplot(132)
-plt.plot(rhos, np.asarray(measure2)/1000, marker = "o", color='black')
-plt.xlabel("Raman $\Delta n$")
-plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
-plt.subplot(133)
-
-for i in range(0,len(rhos)):
-    plt.plot(mons[i], rems[i], label=str(rhos[i]))
-plt.xlim((1, 200))
-plt.ylim((0,1))  
-plt.xlabel("Blue Photon Count")
-plt.ylabel("Remaining Atoms")
-plt.tight_layout()
-plt.legend(title=r'$\Delta n$',loc='upper right')
-plt.show()s[i]
         if (left > 0.95):
             isel = i
     print (pair, isel, newinitial_n_bluephotons_mon[isel])
@@ -662,7 +631,6 @@ plt.ylabel("Remaining Atoms")
 plt.tight_layout()
 plt.legend(title=r'$N_{Repump} / N_{Raman}$',loc='upper right')
 plt.show()
-
 
 
 
