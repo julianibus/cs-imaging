@@ -43,19 +43,16 @@ l34 = 1359.2 * 10**-9
 #########
 decaylabels = ["|2> -> |1>", "|2> -> |3>", "|3> -> |5>", "|4> -> |1>", "|6> -> |4>", "|5> -> |1>", "|6> -> |5>", "|7> -> |5>", "|2> -> |7>", "|2> -> |6>", "|3> -> |4>"]
 decays = [l21, l23, l35, l41, l64, l51, l65, l75, l27, l26, l34]
-gammas = [g21, g23, g35, g41, g64, g51, g65, g75, g27, g26, g34]
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 decaylevels = ["6s 2 S 1/2", "7s 2 S 1/2","6p 2 P ?3/2", "6s 2 S 1/2", "6p 2 P ?1/2","6s 2 S 1/2", "6p 2 P ?3/2", "6p 2 P ?3/2", "5d 2 D 5/2","5d 2 D 3/2", "6p 2 P ?1/2"]
 
-lambdal = 880
-inten = 10**8
+lambdal = 532
+inten = 10**7
 
 omegas = list()
 lambdickes = list()
 latticedepths1 = list() # in hbar omega
 latticedepths2 = list() # in lattice recoil energies
-
-breathingcycles = list()
 for level in levels:
         #098765', '#000009'
     pots = list()
@@ -80,14 +77,8 @@ for decayi in range(0,len(decays)):
     lambdickes.append(lambdicke)
     latticedepth2 = (math.fabs(pot)*inten)/(ELatRec)
     latticedepths2.append(latticedepth2)
-    
-    
-    breathingcycles.append((1/gammas[decayi])/((2*math.pi/omega)/2))
-    
-    
             
 print(omegas)
 print(lambdickes)
 print(latticedepths1)
 print(latticedepths2)
-print(breathingcycles)
