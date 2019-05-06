@@ -18,14 +18,7 @@ mpl.rcParams['ytick.direction'] = 'in'
 ICs = 7/2
 q = 0
 
-Natoms = 100
-
-
-font = {'family' : 'normal',
-        'weight' : 'normal',
-        'size'   : 14}
-
-plt.rc('font', **font)
+Natoms = 400
 
 def trans_elem(J,Jt, F, mf, Ft, mft):
     q = (mf - mft)
@@ -67,19 +60,7 @@ def mfhisto(F, mf):
     for f in range(0,Natoms):
         paths = np.arange(0, 6,1)
        # print(paths)
-        path = np.random.choice(paths,1, p=[0.201004, 0.367810,0.001969,0.016289,0.15449,0.258427]/np.sum([0.201004, 0.367810,0.001969,0.016289,0.15449,0.258427]))[0]
-        if path == 0:
-            c = decay_level_choicer(1/2,1/2, *decay_level_choicer(1/2, 1/2,*decay_level_choicer(3/2,1/2,F,mf)))
-        elif path == 1:
-            c = decay_level_choicer(3/2,1/2, *decay_level_choicer(1/2, 3/2,*decay_level_choicer(3/2,1/2,F,mf)))
-        elif path == 2:
-            c = decay_level_choicer(3/2,1/2, *decay_level_choicer(3/2, 3/2,*decay_level_choicer(3/2,3/2,F,mf)))
-        elif path == 3:
-            c = decay_level_choicer(1/2,1/2, *decay_level_choicer(3/2, 1/2,*decay_level_choicer(3/2,3/2,F,mf)))
-        elif path == 4:
-            c = decay_level_choicer(3/2,1/2, *decay_level_choicer(5/2, 3/2,*decay_level_choicer(3/2,5/2,F,mf)))
-        elif path == 5:
-            c = decay_level_choicer(3/2,1/2,F,mf)
+        c = decay_level_choicer(3/2,1/2,F,mf)
             
         clist.append(c)
            # print("yes decay", path)
@@ -205,7 +186,8 @@ def create_excitation_matrix(mode, deltaf):
                 estate_index = exciteds_posdict[estate]
                 row[estate_index] = 1
             except Exception:
-                dummy = 0
+                gstate_index = grounds_posdict[gstate]
+                row[gstate_index] = 1
             ematrix.append(row)
     elif mode == "sigma+":
         for gstate in grounds:
@@ -215,7 +197,8 @@ def create_excitation_matrix(mode, deltaf):
                 estate_index = exciteds_posdict[estate]
                 row[estate_index] = 1
             except Exception:
-                dummy = 0
+                gstate_index = grounds_posdict[gstate]
+                row[gstate_index] = 1
             ematrix.append(row)
     elif mode == "sigma-":
         for gstate in grounds:
@@ -225,7 +208,8 @@ def create_excitation_matrix(mode, deltaf):
                 estate_index = exciteds_posdict[estate]
                 row[estate_index] = 1
             except Exception:
-                dummy = 0
+                gstate_index = grounds_posdict[gstate]
+                row[gstate_index] = 1
             
             ematrix.append(row)
     return np.transpose(ematrix)
@@ -318,6 +302,7 @@ fs = ["F' = 2","F' = 3","F' = 4", "F' = 5"]
 barplot(np.asarray(shares), fs, "", "", "Share of Decays into F = 3")
 barplot(np.asarray(maxdecays), exciteds_strings, "", "Excited State (F, mF)", "Largest Decay Ratio")
     
+
 ## EXPERIMENT 2: Full Cycle
 
 initial_state = np.zeros(len(grounds))
@@ -390,7 +375,7 @@ def experiment2():
     eq_cool_shares = list()
     for repump_mode in ["pi", "sigma+", "sigma-"]:
         for repump_deltaf in [0,+1]:
-            for raman_mode in ["pi", "sigma+", "sigma-"]:
+            for raman_mode in ["pi"]:# "sigma+", "sigma-"]:
                 for raman_deltaf in [-1,+1]:
                     label = "Re " + mode_labels[repump_mode] + " " +  str(repump_deltaf) + " Ra " + mode_labels[raman_mode] + " " + str(raman_deltaf)
                     print(label)
@@ -402,279 +387,3 @@ def experiment2():
     barplot(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
 
 
-## EXPERIMENT 3: TIME EVOLUTION INCLUDING TEMPERATURE
-#Loading Matrix
-def load_matrix(cutoff):
-    totmatrix = np.loadtxt("Pathtot.csv",delimiter=",")[0:cutoff,0:cutoff]
-    plt.matshow(totmatrix)
-    rowsums = list()
-    columnsums = list()
-    for i in range(0,len(totmatrix)):
-        rowsum = np.sum(totmatrix[i])
-        columnsum = np.sum(totmatrix[:,i])
-        #Stabilizer
-        if (columnsum) > 1:
-            totmatrix[:,i] = totmatrix[:,i]/np.sum(totmatrix[:,i])
-            columnsum = np.sum(totmatrix[:,i])
-        print (i, columnsum)  
-    return totmatrix
-
-cutoff = 25  #max n, must matxh size of matrix
-initial_state = np.zeros(len(grounds))
-initial_state[15] = 1 #(4,0)
-initial_state_n = np.zeros(cutoff)
-initial_state_n[0] = 1 #All atoms in ground state
-n_matrix = load_matrix(cutoff) #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
-
-def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
-    #off_res_ra is now share of not cooled atoms during raman (n-> n)
-    tot_probs = list()
-    cool_shares = list()
-        
-    newinitial = initial_state 
-            
-    newinitial1_n = initial_state_n  #State from which Raman cools
-    newinitial2_n = np.zeros(len(initial_state_n)) #State into which Raman cools
-    
-    newinitial_n_nocooling = initial_state_n
-    newinitial_n_bluephotons = 0
-    newinitial_n_nocooling_bluephotons = 0
-    newinitial1_n_sums = list()
-    newinitial2_n_sums = list()
-    newinitial_n_bluephotons_mon = list()
-    newinitial_n_nocooling_bluephotons_mon = list()
-    newinitial_n_nocooling_sums = list()
-    for n in range(0,N):
-        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
-        tot_prob = (np.sum(newinitial))
-        sum3 = sum(newinitial[0:7])
-        sum4 = sum(newinitial[7:16])
-        if raman_deltaf == 1:
-            cool_share = sum3/(sum3 +sum4)
-        elif raman_deltaf == -1:
-            cool_share = sum4/(sum3 +sum4)
-        tot_probs.append(tot_prob)
-        cool_shares.append(cool_share)
-        
-        #1. COoling
-        #for d in np.arange(0, NRaman):
-            
-            
-        for d in np.arange(0, NRaman): 
-            newinitial1_n_old = newinitial1_n
-            newinitial2_n_old = newinitial2_n
-            
-            newinitial1_n_cooled = np.zeros(cutoff)
-            for j in np.arange(0, len(newinitial1_n)-deltan):
-                newinitial1_n_cooled[j] = (1-ramannn)*newinitial1_n[j+deltan] 
-            #newinitial1_n_cooled[len(newinitial1_n)-1] = 0
-            
-            newinitial1_n_cooling = np.zeros(cutoff)
-            for j in np.arange(deltan, len(newinitial1_n)):
-                newinitial1_n_cooling[j] = (1-ramannn)*newinitial1_n[j]        
-
-            newinitial1_n = newinitial1_n - newinitial1_n_cooling - ramannn*newinitial1_n
-            newinitial2_n = newinitial2_n + newinitial1_n_cooled + ramannn*newinitial1_n_old
-        #2.Heating
-        for d in np.arange(0, NRepump):
-            newinitial1_n_sum = np.sum(newinitial1_n)
-            newinitial2_n_sum = np.sum(newinitial2_n)
-            
-            newinitial1_n = newinitial1_n + cool_share*np.dot(n_matrix, np.copy(newinitial2_n))
-            newinitial2_n = (1-cool_share)*np.dot(n_matrix, np.copy(newinitial2_n))
-            
-            
-            newinitial_n_bluephotons = newinitial_n_bluephotons + 0.25*(newinitial2_n_sum/(newinitial1_n_sum+newinitial2_n_sum))      
-        #newinitial1_n = newinitial1_n + cool_share*np.dot(n_matrix, newinitial2_n)- newinitial1_n_cooling - ramannn*newinitial1_n
-        #newinitial2_n = newinitial1_n_cooled + (1-cool_share)*np.dot(n_matrix, newinitial2_n) + ramannn*newinitial1_n
-        
-        newinitial1_n_sum = np.sum(newinitial1_n)
-        newinitial2_n_sum = np.sum(newinitial2_n)
-        
-        newinitial_n_bluephotons_mon.append(newinitial_n_bluephotons)
-        newinitial_n_nocooling_bluephotons = newinitial_n_nocooling_bluephotons + 0.25
-        newinitial_n_nocooling_bluephotons_mon.append(newinitial_n_nocooling_bluephotons)
-        
-        newinitial1_n_sums.append(newinitial1_n_sum)
-        newinitial2_n_sums.append(newinitial2_n_sum)
-        #print(n,newinitial1_n_sum,newinitial2_n_sum,newinitial1_n_sum+ newinitial2_n_sum)
-        #print (newinitial1_n_cooling,newinitial1_n_cooled)*
-        
-        newinitial_n_nocooling    = np.dot(n_matrix, newinitial_n_nocooling)
-        newinitial_n_nocooling_sum = np.sum(newinitial_n_nocooling)
-        newinitial_n_nocooling_sums.append(newinitial_n_nocooling_sum)
-        
-    return (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums,newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon)
-
-
-sqrt(-1)
-
-(tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(10000, 0.01,1,1, 3,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
-plt.clf()
-plt.plot(np.arange(0, len(newinitial1_n_sums)), np.asarray(newinitial1_n_sums), "blue")
-plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial2_n_sums), "green")
-plt.xlabel("Cycles")
-plt.ylabel("Population Probability")
-plt.grid(which="both")
-plt.xlim((0, len(newinitial2_n_sums)))
-plt.ylim((0,1))
-plt.savefig("prop-fstates.png")
-plt.show()
-
-plt.clf()
-plt.plot(np.arange(0, len(newinitial1_n_sums)), np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums), "black")
-plt.plot(np.arange(0, len(newinitial2_n_sums)), np.asarray(newinitial_n_nocooling_sums), "red")
-plt.xlabel("Cycles")
-plt.ylabel("Share of Remaining Atoms")
-plt.grid(which="both")
-plt.xlim((0, len(newinitial2_n_sums)))
-plt.ylim((0,1))
-plt.savefig("loss-cycles.png")
-plt.show()
-
-plt.clf()
-plt.plot(newinitial_n_bluephotons_mon, np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums), "black")
-plt.plot(newinitial_n_nocooling_bluephotons_mon, np.asarray(newinitial_n_nocooling_sums), "red")
-plt.xlabel("Number of Blue Photons")
-plt.ylabel("Share of Remaining Atoms")
-plt.grid(which="both")
-plt.xlim((0, max(newinitial_n_bluephotons_mon)))
-plt.ylim((0,1))
-plt.savefig("loss-bluephotons.png")
-plt.show()
-
-#experiment 4: Dependencay on rhop
-rhos = np.arange(0,0.2,0.02)
-measure = list()
-measure2 = list()
-rems = list()
-mons = list()
-for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(60000, rho, 1,1,3,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
-    isel = 0    
-    for i in range(0, len(newinitial1_n_sums)):
-        left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.95):
-            isel = i
-    print (rho, isel, newinitial_n_bluephotons_mon[isel])
-    measure.append(newinitial_n_bluephotons_mon[isel])
-    measure2.append(isel/2.0)
-    
-    rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
-    mons.append(newinitial_n_bluephotons_mon)
-    
-    
-plt.figure(figsize=(10,4))
-plt.subplot(131)
-plt.plot(rhos, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
-plt.xlabel(r'Raman $\rho$')
-plt.ylabel("Blue Photon Count (5% Loss)")
-plt.subplot(132)
-plt.plot(rhos, np.asarray(measure2)/1000, marker = "o", color='black')
-plt.xlabel(r'Raman $\rho$')
-plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
-plt.subplot(133)
-
-for i in np.arange(1,len(rhos),3):
-    plt.plot(mons[i], rems[i], label=str(rhos[i]))
-plt.xlim((1, 5000))
-plt.ylim((0,1))  
-plt.xlabel("Blue Photon Count")
-plt.ylabel("Remaining Atoms")
-plt.tight_layout()
-plt.legend(title=r'$\rho$',loc='upper right')
-plt.show()
-
-
-#Experiment 5: Dependency on Nraman und Nrepump
-pairs = [(1,5),(1,4),(1,3),(1,2),(1,1),(2,1),(3,1),(4,1),(5,1),(6,1)]
-ratios = list()
-measure = list()
-measure2 = list()
-rems = list()
-mons = list()
-for pair in pairs:
-    NRaman = pair[0]
-    NRepump = pair[1]
-    ratio = pair[1]/float(pair[0])
-    ratios.append(ratio)
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, 0.02, NRaman,NRepump,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
-    isel = 0    
-    for i in range(0, len(newinitial1_n_sums)):
-        left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.95):
-            isel = i
-    print (pair, isel, newinitial_n_bluephotons_mon[isel])
-    measure.append(newinitial_n_bluephotons_mon[isel])
-    measure2.append(isel/2.0)
-    
-    rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
-    mons.append(newinitial_n_bluephotons_mon)
-    
-plt.figure(figsize=(10,4))
-plt.subplot(131)
-plt.plot(ratios, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
-plt.xlabel(r'Ratio $N_{Repump}/N_{Raman}$')
-plt.ylabel("Blue Photon Count (5% Loss)")
-plt.ylim(0,700)
-plt.subplot(132)
-plt.plot(ratios, np.asarray(measure2)/1000, marker = "o", color='black')
-plt.xlabel(r'Ratio $N_{Repump} / N_{Raman}$')
-plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
-plt.ylim(0,12.3)
-plt.subplot(133)
-
-for i in range(0,len(rhos)):
-    plt.plot(mons[i], rems[i], label=str("{:.2f}".format(ratios[i])))
-plt.xlim((1, 3000))
-plt.ylim((0,1))  
-plt.xlabel("Blue Photon Count")
-plt.ylabel("Remaining Atoms")
-plt.tight_layout()
-plt.legend(title=r'$N_{Repump} / N_{Raman}$',loc='upper right')
-plt.show()
-
-
-
-
-#Experiment 6: Dependency on Delta n
-rhos = np.arange(0,10)
-measure = list()
-measure2 = list()
-rems = list()
-mons = list()
-for rho in rhos:
-    (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(100000, 0.02, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
-    isel = 0    
-    for i in range(0, len(newinitial1_n_sums)):
-        left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-        if (left > 0.95):
-            isel = i
-    print (rho, isel, newinitial_n_bluephotons_mon[isel])
-    measure.append(newinitial_n_bluephotons_mon[isel])
-    measure2.append(isel)
-    
-    rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
-    mons.append(newinitial_n_bluephotons_mon)
-    
-    
-plt.figure(figsize=(10,4))
-plt.subplot(131)
-plt.plot(rhos, measure,marker = "o", color='blue', markerfacecolor='blue', markeredgecolor='blue')
-plt.xlabel("Raman $\Delta n$")
-plt.ylabel("Blue Photon Count (5% Loss)")
-plt.subplot(132)
-plt.plot(rhos, np.asarray(measure2)/1000, marker = "o", color='black')
-plt.xlabel("Raman $\Delta n$")
-plt.ylabel("Cycles (5% Loss) $(10^3)$ ")
-plt.subplot(133)
-
-for i in range(0,len(rhos)):
-    plt.plot(mons[i], rems[i], label=str(rhos[i]))
-plt.xlim((1, 200))
-plt.ylim((0,1))  
-plt.xlabel("Blue Photon Count")
-plt.ylabel("Remaining Atoms")
-plt.tight_layout()
-plt.legend(title=r'$\Delta n$',loc='upper right')
-plt.show()
