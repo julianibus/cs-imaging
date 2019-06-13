@@ -15,7 +15,7 @@ import pandas as pd
 import math
 
 #config
-lambdals = [532, 755, 880, 1064, 1535]
+lambdals = [532, 767, 880, 1064, 1535]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
@@ -61,7 +61,7 @@ levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2
 columns = ['laser wavelength','level', 'pot', 'scatt']
 newdf = pd.DataFrame(columns=columns)
 
-intensities = 10**(np.linspace(6,9, num=30)) #1/m^^2 ##LATTICE INTENSITY
+intensities = 10**(np.linspace(6,10, num=30)) #1/m^^2 ##LATTICE INTENSITY
 fig, ax = plt.subplots()
 ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
 
@@ -92,7 +92,7 @@ for lambdal in lambdals:
         
     plt.title(str(lambdal) + "nm")
     plt.xlabel("Lattice Beam Intensity (W/m^2)")
-    plt.xlim(10**6,10**9)
+    plt.xlim(10**6,10**10)
     plt.ylabel("H.O. Frequency (1/s)")
     plt.legend(loc=4, prop={'size': 10})
     plt.grid(b=True, which='both', color='0.65', linestyle='-')
@@ -120,7 +120,7 @@ for lambdal in lambdals:
     ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
     print(lambdal)
     
-    for decayi in range(1,len(decays)):
+    for decayi in range(0,len(decays)):
 
         lambdickes = list()
         for inten in intensities:
@@ -136,7 +136,7 @@ for lambdal in lambdals:
     plt.title(str(lambdal) + "nm")
     plt.xlabel("Lattice Beam Intensity (W/m^2)")
     plt.ylabel("Lamb-Dicke Parameter")
-    plt.xlim(10**6,10**9)
+    plt.xlim(10**6,10**10)
     plt.legend(loc=3, prop={'size': 10})
     plt.grid(b=True, which='both', color='0.65', linestyle='-') 
     plt.savefig("LD" + str(lambdal) + ".png")

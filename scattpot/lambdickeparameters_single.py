@@ -7,8 +7,8 @@ import pandas as pd
 import math
 
 #config
-lambdals = [532, 755, 880, 1064, 1535]
-output = "532.csv"
+lambdals = [767]
+output = "767.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
 
@@ -46,8 +46,8 @@ decays = [l21, l23, l35, l41, l64, l51, l65, l75, l27, l26, l34]
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 decaylevels = ["6s 2 S 1/2", "7s 2 S 1/2","6p 2 P ?3/2", "6s 2 S 1/2", "6p 2 P ?1/2","6s 2 S 1/2", "6p 2 P ?3/2", "6p 2 P ?3/2", "5d 2 D 5/2","5d 2 D 3/2", "6p 2 P ?1/2"]
 
-lambdal = 532
-inten = 10**7
+lambdal = 767
+inten = 2*10**9
 
 omegas = list()
 lambdickes = list()
