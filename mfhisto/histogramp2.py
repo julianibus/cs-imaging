@@ -193,11 +193,11 @@ grounds_posdict = {
         (4,2): 13,    
         (4,3): 14,    
         (4,4): 15,            
-				}
+				} 
 
 def create_excitation_matrix(mode, deltaf):
     ematrix = list()
-    if mode == "pi":
+    if mode == "pi": 
         for gstate in grounds:
             estate = (gstate[0]+deltaf,gstate[1] )
             row = np.zeros(len(exciteds_posdict))
