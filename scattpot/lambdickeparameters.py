@@ -15,7 +15,7 @@ import pandas as pd
 import math
 
 #config
-lambdals = [532, 767, 880, 1064, 1535]
+lambdals = [767, 880, 1064, 1535]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
@@ -56,17 +56,18 @@ l34 = 1359.2 * 10**-9
 
 #decaywleff = {"6s 2 S 1/2": (l41*g41*ss[0]+l21*g21*ss[1]+l51*g51*ss[4])/(g41*ss[0]+g21*ss[1]+g51*ss[4]), "7p 2 P ?3/2": l21, "7s 2 S 1/2": l23, "6p 2 P ?1/2": (l34*g34*ss[2]+l64*g64*ss[5])/(g34*ss[2]+g64*ss[5]), "6p 2 P ?3/2": (l75*g75*ss[6]+l65*g65*ss[5])/(g75*ss[6]+ g65*ss[5]), "5d 2 D 3/2": l26, "5d 2 D 5/2": l27}
 
-levellabels = ["|1> 6s 2 S 1/2", "|2> 7p 2 P ?3/2", "|3> 7s 2 S 1/2", "|4> 6p 2 P ?1/2", "|5> 6p 2 P ?3/2", "|6> 5d 2 D 3/2", "|7> 5d 2 D 5/2"]
+levellabels = ["|1> $6s_{1/2}$", "|2> $7p_{3/2}$", "|3> $7s_{1/2}$", "|4> $6p_{1/2}$", "|5> $6p_{3/2}$", "|6> $5d_{3/2}$", "|7> $5d_{5/2}$"]
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 columns = ['laser wavelength','level', 'pot', 'scatt']
 newdf = pd.DataFrame(columns=columns)
 
 intensities = 10**(np.linspace(6,10, num=30)) #1/m^^2 ##LATTICE INTENSITY
-fig, ax = plt.subplots()
+plt.figure(figsize=(10,7))
 ax.set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
-
+c3 = 0
 for lambdal in lambdals:
-    plt.clf()
+    c3+=1
+    plt.subplot(2,2,c3)
     print(lambdal)
     c = -1
     for level in levels:
@@ -81,7 +82,7 @@ for lambdal in lambdals:
         omegas = list()
         lambdickes = list()
         for inten in intensities:
-            omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+            omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
             omegas.append(omega)
             
         if (pot > 0):
@@ -96,7 +97,9 @@ for lambdal in lambdals:
     plt.ylabel("H.O. Frequency (1/s)")
     plt.legend(loc=4, prop={'size': 10})
     plt.grid(b=True, which='both', color='0.65', linestyle='-')
-    plt.savefig("HO" + str(lambdal) + ".png")
+   # plt.savefig("HO" + str(lambdal) + ".png")
+
+plt.show()
 
 l21 = 455.5 * 10**-9 
 l23 = 2931.8 * 10**-9 
