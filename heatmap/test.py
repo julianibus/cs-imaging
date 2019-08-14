@@ -55,6 +55,7 @@ def IntDr(eta):
     Deff = np.zeros((nmax, nmax),dtype=complex)
     for theta in thetas:
     	D = np.zeros((nmax, nmax),dtype=complex)
+     
     	for n in N:
     		for nt in NT:
     			D[n,nt] = sqrt(factorial(np.minimum(n, nt))/factorial(np.minimum(n, nt) + np.abs(nt - n)))*(1j*eta *np.cos(math.pi/4))**(np.abs(nt - n))*eval_genlaguerre(np.minimum(n, nt), np.abs(nt - n), (eta*math.cos(math.pi/4))**2)*np.exp(-0.5*(eta*np.cos(math.pi/4))**2)
