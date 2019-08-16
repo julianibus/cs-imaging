@@ -19,7 +19,7 @@ c = 2.997*10**8;
 hbar = 1.0545718*10**(-34)
 m = 132.90 * 1.660539*10**(-27) 
 
-nmax = 25
+nmax = 30
 
 g23 = 4.05*10**6;
 g34 = 6.23*10**6;
@@ -82,7 +82,7 @@ def psit(psip,ta, omegat):
     #print(mat)
     return res
 
-initial = psix(x,3 ,658860.1901609472)
+initial = psix(x,0 ,658860.1901609472)
 
 tstart = 0.1*10**(-9)
 tstop = 20000*10**(-9)
@@ -113,7 +113,7 @@ plt.show()
 
 plt.figure(figsize=(7,5))
 plt.plot(T, avgoverlaps, color="black", linewidth=1.5)
-plt.plot(T, 3+10*np.square(np.sin(T*214198.036115241855)), "--r")
+plt.plot(T, 0+2*np.square(np.sin(T*214198.036115241855)), "--r")
 plt.ylabel("<n'>")
 plt.xlabel("Time (s)")
 plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
