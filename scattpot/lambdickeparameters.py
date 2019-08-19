@@ -13,6 +13,7 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import os
 import pandas as pd
 import math
+from matplotlib.transforms import Transform
 
 #config
 lambdals = [767, 880, 1064, 1535]
@@ -91,7 +92,14 @@ for lambdal in lambdals:
         else: 
             plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], linestyle = "--") 
             
-        
+    def topotdepth(x):
+        x**2 * (lambdal * 10**(-9))**4 * m**2 /((2*math.pi)**4 * hbar**2)
+    def toomega(x):
+        math.sqrt(x* ((2*math.pi)**4 * hbar**2)/((lambdal * 10**(-9))**4 * m**2))
+    
+    ax = plt.gca()
+    secax = ax.secondary_xaxis('top', functions=(topotdepth, toomega))
+    secax.set_xlabel('angle [rad]')
     plt.gca().text(0.04, 0.85, str(lambdal) + " nm", fontsize=10, transform=plt.gca().transAxes)
     plt.xlabel("$I$ ($mW/cm^{2}$)")
     plt.xlim(10**5,10**9)
@@ -103,6 +111,51 @@ plt.tight_layout()
 
 plt.savefig("omegas.png")
 plt.show()
+plt.figure(figsize=(7,5))
+plt.gca().set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
+c3 = 0
+for lambdal in lambdals:
+    c3+=1
+    plt.subplot(2,2,c3)
+    print(lambdal)
+    c = -1
+    for level in levels:
+        c = c + 1
+        #098765', '#000009'
+        pots = list()
+        scatts = list()
+        pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
+        row = {'laser wavelength':lambdal,'level': level, 'pot': pot, 'scatt': scatt}
+        newdf.loc[len(newdf)] = row
+        
+        omegas = list()
+        lambdickes = list()
+        pdepths= list()
+
+        for inten in intensities:
+            inten = inten*10
+            omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+            #omegas.append(omega)
+            pdepths.append(inten*math.fabs(pot)/(hbar**2/(2*m) *(2 * math.pi/(lambdal * 10**(-9)))**2))
+        if (pot > 0):
+            plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c]) ##concert so that xaxis is in mW/cm^2
+        else: 
+            plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c], linestyle = "--") 
+            
+        
+    plt.gca().text(0.04, 0.85, str(lambdal) + " nm", fontsize=10, transform=plt.gca().transAxes)
+    plt.xlabel("$I$ ($mW/cm^{2}$)")
+    plt.xlim(10**5,10**9)
+    plt.ylabel("$\omega$ (1/s)")
+    plt.legend(loc=4, prop={'size': 6})
+    plt.grid(b=True, which='both', color='0.85', linestyle='-')
+   # plt.savefig("HO" + str(lambdal) + ".png")
+plt.tight_layout()
+
+plt.savefig("potdepth.png")
+plt.show()
+
+
 
 l21 = 455.5 * 10**-9 
 l23 = 2931.8 * 10**-9 
