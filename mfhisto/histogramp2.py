@@ -694,18 +694,120 @@ plt.show()
 ##############################
 #Nice plot matrices
 
+def make_plot():
+    fig, ax = plt.subplots()
+    im = ax.imshow(decay_matrix, cmap="Reds")
+    
+    farmers=["F'=2","","","","","F'=3","","","","","","","F'=4","","","","","","","","","F'=5","","","","","","","","","",""]
+    vegetables=["F=3","","","","","","","F=4","","","","","","","",""]
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(farmers)))
+    ax.set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(farmers)
+    ax.set_yticklabels(vegetables)
+    
+    
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
 
-fig, ax = plt.subplots()
-im = ax.imshow(decay_matrix, cmap="Reds")
 
-# We want to show all ticks...
-ax.set_xticks(np.arange(len(farmers)))
-ax.set_yticks(np.arange(len(vegetables)))
-# ... and label them with the respective list entries
-ax.set_xticklabels(farmers)
-ax.set_yticklabels(vegetables)
-
-# Rotate the tick labels and set their alignment.
-plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-         rotation_mode="anchor")
-
+def make_plot2():
+    fig, ax = plt.subplots()
+    im = ax.imshow(create_excitation_matrix("sigma+", +1), cmap="Reds")
+    
+    vegetables=["F'=2","","","","","F'=3","","","","","","","F'=4","","","","","","","","","F'=5","","","","","","","","","",""]
+    farmers=["F=3","","","","","","","F=4","","","","","","","",""]
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(farmers)))
+    ax.set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(farmers)
+    ax.set_yticklabels(vegetables)
+    
+    
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
+    
+    
+def make_plot3():
+    fig, ax = plt.subplots()
+    im = ax.imshow(raman_matrix("pi", -1), cmap="Reds", aspect="auto")
+    
+    farmers=["F=3","","","","","","","F=4","","","","","","","",""]
+    vegetables=farmers
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(farmers)))
+    ax.set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(farmers)
+    ax.set_yticklabels(vegetables)
+    
+    
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
+    
+def make_plot4():
+    plt.figure(figsize=(10,9))
+    
+    plt.subplot(221)
+    ax = plt.gca()
+    im = ax.imshow(raman_matrix("pi", -1), cmap="Reds")
+    
+    farmers=["F=3","","","","","","","F=4","","","","","","","",""]
+    vegetables=farmers
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(farmers)))
+    ax.set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(farmers)
+    ax.set_yticklabels(vegetables)
+    plt.title("Raman $\pi, \Delta F = -1$", fontsize=13)
+    
+    
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
+    
+    
+    plt.subplot(222)
+    ax = plt.gca()
+    im = ax.imshow(create_excitation_matrix("sigma+", +1), cmap="Reds")
+    
+    vegetables=["F'=2","","","","","F'=3","","","","","","","F'=4","","","","","","","","","F'=5","","","","","","","","","",""]
+    farmers=["F=3","","","","","","","F=4","","","","","","","",""]
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(farmers)))
+    ax.set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(farmers)
+    ax.set_yticklabels(vegetables)
+    plt.title("Repump $\sigma^{+}, \Delta F = +1$", fontsize=13)
+    
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
+    
+    plt.subplot(212)
+    ax = plt.gca()
+    im = ax.imshow(decay_matrix, cmap="Reds")
+    
+    farmers=["F'=2","","","","","F'=3","","","","","","","F'=4","","","","","","","","","F'=5","","","","","","","","","",""]
+    vegetables=["F=3","","","","","","","F=4","","","","","","","",""]
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(farmers)))
+    ax.set_yticks(np.arange(len(vegetables)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(farmers)
+    ax.set_yticklabels(vegetables)
+    plt.title("Decay", fontsize=13)
+    
+    
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
+   # plt.subplots_adjust(wspace = 0.01, hspace = 0.01)
+    plt.tight_layout()
