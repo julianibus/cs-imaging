@@ -751,9 +751,9 @@ def make_plot3():
              rotation_mode="anchor")
     
 def make_plot4():
-    plt.figure(figsize=(10,9))
+    plt.figure(figsize=(5.5,6))
     
-    plt.subplot(221)
+    plt.subplot2grid((2,3),(0,0), colspan=2)
     ax = plt.gca()
     im = ax.imshow(raman_matrix("pi", -1), cmap="Reds")
     
@@ -773,7 +773,7 @@ def make_plot4():
              rotation_mode="anchor")
     
     
-    plt.subplot(222)
+    plt.subplot2grid((2,3),(0,2))
     ax = plt.gca()
     im = ax.imshow(create_excitation_matrix("sigma+", +1), cmap="Reds")
     
@@ -791,7 +791,7 @@ def make_plot4():
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
              rotation_mode="anchor")
     
-    plt.subplot(212)
+    plt.subplot2grid((2,3),(1,0), colspan=3) 
     ax = plt.gca()
     im = ax.imshow(decay_matrix, cmap="Reds")
     
