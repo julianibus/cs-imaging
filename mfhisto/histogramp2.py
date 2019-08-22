@@ -195,15 +195,25 @@ grounds_posdict = {
         (4,4): 15,            
 				} 
 
-def create_excitation_matrix(mode, deltaf):
+def create_excitation_matrix(mode, deltaf,deltaframan):
     ematrix = list()
+    
+    if deltaframan == 1:
+        nochangestate = 3
+    elif deltaframan == -1:
+        nochangestate = 4
+        
+    
     if mode == "pi": 
-        for gstate in grounds:
+        for gstate in grounds: 
             estate = (gstate[0]+deltaf,gstate[1] )
             row = np.zeros(len(exciteds_posdict))
             try:
                 estate_index = exciteds_posdict[estate]
-                row[estate_index] = 1
+                if gstate[0] != nochangestate:
+                    row[estate_index] = 1
+                else:
+                    row[estate_index] = 0
             except Exception:
                 dummy = 0
             ematrix.append(row)
@@ -213,7 +223,10 @@ def create_excitation_matrix(mode, deltaf):
             row = np.zeros(len(exciteds_posdict))
             try:
                 estate_index = exciteds_posdict[estate]
-                row[estate_index] = 1
+                if gstate[0] != nochangestate:
+                    row[estate_index] = 1
+                else:
+                    row[estate_index] = 0
             except Exception:
                 dummy = 0
             ematrix.append(row)
@@ -223,7 +236,10 @@ def create_excitation_matrix(mode, deltaf):
             row = np.zeros(len(exciteds_posdict))
             try:
                 estate_index = exciteds_posdict[estate]
-                row[estate_index] = 1
+                if gstate[0] != nochangestate:
+                    row[estate_index] = 1
+                else:
+                    row[estate_index] = 0
             except Exception:
                 dummy = 0
             
@@ -278,7 +294,7 @@ def raman_matrix(mode, deltaf):
 
 
 def barplot(pil, strings,title, xtitle, ytitle):
-    plt.figure(figsize=(6,4))
+    plt.figure(figsize=(10,8))
     barlist = plt.bar(np.arange(0,len(strings),1), pil, align='center', alpha=0.7,edgecolor='b')
     for ibar in range(0,len(barlist)):
         try:
@@ -297,6 +313,32 @@ def barplot(pil, strings,title, xtitle, ytitle):
     plt.xlabel(xtitle)
     plt.ylabel(ytitle)
     plt.xticks(rotation=90) # horizontal lines
+    
+def barplotmany(pil, strings,title, xtitle, ytitle):
+    plt.figure(figsize=(10,8))
+    barlist = plt.bar(np.arange(0,len(strings),1), pil, align='center', alpha=0.7,edgecolor='b')
+    for ibar in range(0,len(barlist)):
+        try:
+            if len(strings)==4:
+                barlist[ibar].set_color(Fcolors[int(strings[ibar][-1])])
+            else:
+                barlist[ibar].set_color(Fcolors[int(strings[ibar][1])])
+        except Exception:
+            barlist[ibar].set_color("b")
+        
+    ax = plt.axes()        
+    ax.yaxis.grid()
+    ax.set_axisbelow(True)
+    plt.xticks(np.arange(0,len(strings),1), strings)
+    plt.title(title)
+    plt.xlabel(xtitle)
+    plt.ylabel(ytitle)
+    plt.xticks(rotation=90) # horizontal lines
+
+
+
+
+sqrt(-1)
 
 ## EXPERIMENT 1: DECAY HISTOGRAMS
 shares =list()
@@ -335,7 +377,7 @@ def timeevolution_movie(N, initial_state, repump_mode, repump_deltaf, raman_mode
     barplot(newinitial, grounds_strings, "","","")
     plt.savefig("-1.png")    
     for n in range(0,N):
-        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf,raman_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
         barplot(newinitial, grounds_strings, "","","")
         plt.savefig(str(n)+".png")
         tot_prob = (np.sum(newinitial))
@@ -363,7 +405,7 @@ def timeevolution(N, initial_state, repump_mode, repump_deltaf, raman_mode, rama
     newinitial = initial_state
     
     for n in range(0,N):
-        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
+        newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf,raman_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
         #barplot(newinitial, grounds_strings, "","","")
         tot_prob = (np.sum(newinitial))
         sum3 = sum(newinitial[0:7])
@@ -379,7 +421,7 @@ def timeevolution(N, initial_state, repump_mode, repump_deltaf, raman_mode, rama
     #plt.plot(times, tot_probs)
     #plt.figure(figsize=(10,5))
     #plt.plot(times, cool_shares)
-    return tot_prob, cool_share
+    return tot_prob, cool_share, tot_probs, cool_shares
 
 def experiment2():
     mode_labels = {"sigma+": "s+",
@@ -392,14 +434,36 @@ def experiment2():
         for repump_deltaf in [0,+1]:
             for raman_mode in ["pi", "sigma+", "sigma-"]:
                 for raman_deltaf in [-1,+1]:
-                    label = "Re " + mode_labels[repump_mode] + " " +  str(repump_deltaf) + " Ra " + mode_labels[raman_mode] + " " + str(raman_deltaf)
-                    print(label)
-                    label_strings.append( label)
-                    eq_tot_prob, eq_cool_share = timeevolution(60, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf)
-                    eq_tot_probs.append(eq_tot_prob)
-                    eq_cool_shares.append(eq_cool_share)
-    barplot(eq_tot_probs, label_strings, "", "Configuration", "Prob")
-    barplot(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
+                    if repump_mode == "pi" and repump_deltaf == 1 and raman_mode == "pi" and raman_deltaf==-1:
+                        eq_tot_prob2, eq_cool_share2, tot_probs2, cool_shares2= timeevolution(10, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf) 
+                    eq_tot_prob, eq_cool_share, tot_probs, cool_shares= timeevolution(80, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf)
+                    if eq_tot_prob > 0:
+                        label = "Re " + mode_labels[repump_mode] + " " +  str(repump_deltaf) + " Ra " + mode_labels[raman_mode] + " " + str(raman_deltaf)
+                        label_strings.append( label)
+                        eq_tot_probs.append(eq_tot_prob)
+                        eq_cool_shares.append(eq_cool_share)
+    #barplotmany(eq_tot_probs, label_strings, "", "Configuration", "Prob")
+    #barplotmany(eq_cool_shares, label_strings, "", "Configuration", "Equilibrium Share of Atoms being Cooled")
+    strings = label_strings
+    pil = eq_cool_shares
+    plt.figure(figsize=(11,3))
+    barlist = plt.bar(np.arange(0,len(strings),1), pil, align='center', alpha=0.7,edgecolor='b')
+    for ibar in range(0,len(barlist)):
+        try:
+            if len(strings)==4:
+                barlist[ibar].set_color(Fcolors[int(strings[ibar][-1])])
+            else:
+                barlist[ibar].set_color(Fcolors[int(strings[ibar][1])])
+        except Exception:
+            barlist[ibar].set_color("grey")
+        
+    ax = plt.axes()        
+    ax.yaxis.grid()
+    ax.set_axisbelow(True)
+    plt.xticks(np.arange(0,len(strings),1), strings)
+    plt.xlabel("Configuration")
+    plt.ylabel("$\\alpha_{t\\to\infty}$")
+    plt.xticks(rotation=90) # horizontal lines
 
 
 ## EXPERIMENT 3: TIME EVOLUTION INCLUDING TEMPERATURE
@@ -455,7 +519,7 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
             cool_share = sum4/(sum3 +sum4)
         tot_probs.append(tot_prob)
         cool_shares.append(cool_share)
-        
+         
         #1. COoling
         #for d in np.arange(0, NRaman):
             
