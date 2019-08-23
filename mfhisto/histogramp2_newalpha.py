@@ -434,8 +434,8 @@ def ex2():
     eq_tot_probs = list()
     eq_cool_shares = list()
     #for repump_mode in ["pi", "sigma+", "sigma-"]:
-        repump_mode = "pi"
-        for repump_deltaf in [0,+1]:
+    repump_mode = "pi"
+    for repump_deltaf in [0,+1]:
                 raman_mode = "pi"
             #for raman_mode in ["pi", "sigma+", "sigma-"]:
                 raman_mode = "pi"
@@ -444,7 +444,7 @@ def ex2():
                         eq_tot_prob2, eq_cool_share2, tot_probs2, cool_shares2= timeevolution(10, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf) 
                     eq_tot_prob, eq_cool_share, tot_probs, cool_shares= timeevolution(80, initial_state, repump_mode, repump_deltaf, raman_mode, raman_deltaf)
                     if eq_tot_prob > 0:
-                        label = mode_labels[repump_mode] + ", " +  str(deltaf_labels[repump_deltaf]) + ", " + mode_labels[raman_mode] + ", " + str(deltaf_labels[raman_deltaf]) + ""
+                        label = str(deltaf_labels[repump_deltaf]) + ", " + str(deltaf_labels[raman_deltaf]) + ""
                         label_strings.append( label)
                         eq_tot_probs.append(eq_tot_prob)
                         eq_cool_shares.append(eq_cool_share)
@@ -471,6 +471,9 @@ def ex2():
     plt.ylabel("$\\alpha_{t\\to\infty}$")
     plt.xticks(rotation=90) # horizontal lines
     plt.tight_layout()
+    plt.show()
+    plt.figure(figsize=(11,5))
+    plt.scatter(np.arange(0,len(cool_shares2),1),cool_shares2)
     plt.show()
 
 
