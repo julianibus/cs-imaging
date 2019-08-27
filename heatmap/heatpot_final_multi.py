@@ -26,7 +26,7 @@ import pandas as pd
 import math
 
 #CONFIGURATION####
-nmax = 15
+
 lambdal = 1535
 ### INTENSITY MULTI ######
 xstep = 0.25  * 10**(-8)
@@ -90,6 +90,7 @@ collectorbluescatt = list()
 collectordepth1 = list()
 collectordepth2 = list()
 intensities = (10**(np.linspace(5,9, num=10)))
+icount = 0
 for inten in intensities:
     print ("INTENs", inten)
     omegas = list()
@@ -114,7 +115,8 @@ for inten in intensities:
         latticedepths1.append(latticedepth1)
     
     
-    
+    nmax = int(latticedepths1[0])+2
+    print(nmax)
         
     for decayi in range(0,len(decays)):
         pot, scatt = cs.GetFactors(lambdal*10**-9, decaylevels[decayi], "transitions_complemented.csv")
@@ -315,6 +317,17 @@ for inten in intensities:
     np.savetxt("F.csv", np.square(np.abs(pathF)), delimiter=",")
     pathR = np.dot(D51,np.dot(U51,np.dot(D15,Ra)))#RED IMAGING 6p3/2 
     np.savetxt("R.csv", np.square(np.abs(pathR)), delimiter=",")
+
+    Pathtot = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathD)),np.add(0.001969*np.square(np.abs(pathC)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
+    PathtotCDE = np.add(0.25827/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathF)),np.add(0.3678/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathB)),0.201004/(0.2001004 + 0.3678 + 0.25827)*np.square(np.abs(pathA))))
+    
+    PathtotE = np.add(0.30564774229869446*np.square(np.abs(pathF)),np.add(0*np.square(np.abs(pathE)),np.add(0.019265386644210684*np.square(np.abs(pathD)),np.add(0.002328783000948544*np.square(np.abs(pathC)),np.add(0.43502588982218926*np.square(np.abs(pathB)),0.2377321982339569*np.square(np.abs(pathA)))))))
+    
+    #PathtotE = np.add(0.258427*np.square(np.abs(pathF)),np.add(0.154494*np.square(np.abs(pathE)),np.add(0.016289*np.square(np.abs(pathD)),np.add(0.001969*np.square(np.abs(pathC)),np.add(0.367810*np.square(np.abs(pathB)),0.201004*np.square(np.abs(pathA)))))))
+    
+    np.savetxt(str(icount) +"Pathtot.csv", Pathtot, delimiter=",")
+    np.savetxt(str(icount) +"PathtotCDE.csv", PathtotCDE, delimiter=",")
+    np.savetxt(str(icount) +"PathtotE.csv", PathtotE, delimiter=",")
     
     def avgnt(n, pat):
         avg = 0
@@ -346,11 +359,13 @@ for inten in intensities:
     print("latt",collectorscatt[len(collectorscatt)-1])
     print("blue",collectorbluescatt[len(collectorbluescatt)-1])
     
-np.savetxt("intensities.csv", intensities, delimiter=",")
-np.savetxt("heatings.csv", collector, delimiter=",")
-np.savetxt("heating2s.csv", collector2, delimiter=",")
-#np.savetxt("heatingsall.csv", collectorall, delimiter=",")
-np.savetxt("heatings_lattice.csv", collectorscatt, delimiter=",")
-np.savetxt("heatings_blue.csv", collectorbluescatt, delimiter=",")
-np.savetxt("latticedepths1.csv", collectordepth1, delimiter=",")
-np.savetxt("latticedepths2.csv", collectordepth2, delimiter=",")
+    np.savetxt("intensities.csv", intensities, delimiter=",")
+    np.savetxt("heatings.csv", collector, delimiter=",")
+    np.savetxt("heating2s.csv", collector2, delimiter=",")
+    #np.savetxt("heatingsall.csv", collectorall, delimiter=",")
+    np.savetxt("heatings_lattice.csv", collectorscatt, delimiter=",")
+    np.savetxt("heatings_blue.csv", collectorbluescatt, delimiter=",")
+    np.savetxt("latticedepths1.csv", collectordepth1, delimiter=",")
+    np.savetxt("latticedepths2.csv", collectordepth2, delimiter=",")
+    
+    icount += 1

@@ -578,21 +578,20 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
 
 #creat fname list
 
-cutoff = 25  #max n, must matxh size of matrix
-initial_state = np.zeros(len(grounds))
-initial_state[6] = 1 #(4,0)
-initial_state_n = np.zeros(cutoff)
-initial_state_n[0] = 1 #All atoms in ground state
+wl = 880
+ifilename = "matrices/"+str(wl)+"/intenisties.csv"
+intlist =  np.loadtxt(ifilename,delimiter=",")
+ldfilename = "matrices/"+str(wl)+"latticedepths1.csv"
+ldlist =  np.loadtxt(ifilename,delimiter=",")[:,0]
+for j in range(0, len())
+    cutoff = int(ldlist)+2  #max n, must matxh size of matrix
+    initial_state = np.zeros(len(grounds))
+    initial_state[6] = 1 #(4,0)
+    initial_state_n = np.zeros(cutoff)
+    initial_state_n[0] = 1 #All atoms in ground state
 
-sqrt(-1)
-
-plt.figure(figsize=(12,5))
-fstrings = ["matrices/880/Pathtot.csv", "matrices/880/PathtotE.csv","matrices/880/PathtotCDE.csv"]
-dcolors = ["blue", "navy", "royalblue"]
-labs = ["ABCDEF", "ABCDF", "ABF"]
-plt.subplot(121)
-for j in range(0,3):
-    n_matrix = load_matrix(fstrings[j],cutoff)
+    n_matrix = load_matrix("matrices/"+str(wl)+"/"+ str(j)+"Pathtot.csv",cutoff)
+    
     #Experiment 6: Dependency on Delta n
     rhos = np.arange(0,6)
     measure = list()
@@ -600,7 +599,7 @@ for j in range(0,3):
     rems = list()
     mons = list()
     for rho in rhos:
-        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(10000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(50000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
         isel = 0    
         for i in range(0, len(newinitial1_n_sums)):
             left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
@@ -613,44 +612,11 @@ for j in range(0,3):
         rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
         mons.append(newinitial_n_bluephotons_mon)
         
-    
-    plt.plot(rhos, measure,marker = "o", color=dcolors[j], markerfacecolor=dcolors[j], markeredgecolor=dcolors[j], label=labs[j])
 
-ax = plt.gca()
-#ax.set_yscale('log')
-plt.xlabel("$\Delta n$")
-plt.ylabel("$N_{\\gamma}$ (5% Loss)")
-plt.legend()
-plt.subplot(122)
-for j in range(0,3):
-    n_matrix = load_matrix(fstrings[j],cutoff)
-    #Experiment 6: Dependency on Delta n
-    rhos = np.arange(0,0.3, 0.025)
-    measure = list()
-    measure2 = list()
-    rems = list()
-    mons = list()
-    for rho in rhos:
-        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(10000, rho, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
-        isel = 0    
-        for i in range(0, len(newinitial1_n_sums)):
-            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-            if (left > 0.95):
-                isel = i
-        print (rho, isel, newinitial_n_bluephotons_mon[isel])
-        measure.append(newinitial_n_bluephotons_mon[isel])
-        measure2.append(isel)
-        
-        rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
-        mons.append(newinitial_n_bluephotons_mon)
-        
-    
-    plt.plot(rhos, measure,marker = "o", color=dcolors[j], markerfacecolor=dcolors[j], markeredgecolor=dcolors[j])
+plt.figure(figsize=(6,4))
+plt.plot(rhos, measure,marker = "o", color="blue", markerfacecolor="blue", markeredgecolor="blue")
 
-
-plt.xlabel("$\\rho$")
-#ax = plt.gca()
-plt.tight_layout()
-#plt.ylabel("$N_{\gamma}$ (5% Loss)")
+plt.xlabel("Raman $\Delta n$")
+plt.ylabel("Blue Photon Count (5% Loss)")
 
 
