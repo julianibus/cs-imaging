@@ -495,7 +495,7 @@ def load_matrix(filename, cutoff):
     return totmatrix
 #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
 
-def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+def full_time_evolution(No, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
     #off_res_ra is now share of not cooled atoms during raman (n-> n)
     tot_probs = list()
     cool_shares = list()
@@ -513,7 +513,7 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
     newinitial_n_bluephotons_mon = list()
     newinitial_n_nocooling_bluephotons_mon = list()
     newinitial_n_nocooling_sums = list()
-    for n in range(0,N):
+    for n in range(0,No):
         #äprint(newinitial)
         newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf, raman_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
         tot_prob = (np.sum(newinitial))
@@ -524,7 +524,11 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
         elif raman_deltaf == -1:
             cool_share = sum4/(sum3 +sum4)
         tot_probs.append(tot_prob)
-        cool_shares.append(cool_share)
+        if n > 100:
+            cool_shares.append(cool_shares[90])
+            cool_share = cool_shares[90]
+        else:
+            cool_shares.append(cool_share)
          
         #1. COoling
         #for d in np.arange(0, NRaman):
@@ -578,7 +582,7 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
 
 #creat fname list
 
-cutoff = 25  #max n, must matxh size of matrix
+cutoff = 15  #max n, must matxh size of matrix
 initial_state = np.zeros(len(grounds))
 initial_state[6] = 1 #(4,0)
 initial_state_n = np.zeros(cutoff)
@@ -586,12 +590,12 @@ initial_state_n[0] = 1 #All atoms in ground state
 
 sqrt(-1)
 
-plt.figure(figsize=(12,5))
-fstrings = ["matrices/880/Pathtot.csv", "matrices/880/PathtotE.csv","matrices/880/PathtotCDE.csv"]
+plt.figure(figsize=(10,4))
+fstrings = ["morematrices/880/6PathtotR.csv"]
 dcolors = ["blue", "navy", "royalblue"]
 labs = ["ABCDEF", "ABCDF", "ABF"]
 plt.subplot(121)
-for j in range(0,3):
+for j in range(0,1):
     n_matrix = load_matrix(fstrings[j],cutoff)
     #Experiment 6: Dependency on Delta n
     rhos = np.arange(0,6)
@@ -600,11 +604,11 @@ for j in range(0,3):
     rems = list()
     mons = list()
     for rho in rhos:
-        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(10000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(20000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
         isel = 0    
         for i in range(0, len(newinitial1_n_sums)):
             left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-            if (left > 0.95):
+            if (left > 0.99999):
                 isel = i
         print (rho, isel, newinitial_n_bluephotons_mon[isel])
         measure.append(newinitial_n_bluephotons_mon[isel])
@@ -614,15 +618,15 @@ for j in range(0,3):
         mons.append(newinitial_n_bluephotons_mon)
         
     
-    plt.plot(rhos, measure,marker = "o", color=dcolors[j], markerfacecolor=dcolors[j], markeredgecolor=dcolors[j], label=labs[j])
+    plt.plot(rhos, measure,marker = "o", color="tomato", markerfacecolor="tomato", markeredgecolor="red", label="Red")
 
 ax = plt.gca()
 #ax.set_yscale('log')
 plt.xlabel("$\Delta n$")
-plt.ylabel("$N_{\\gamma}$ (5% Loss)")
-plt.legend()
+plt.ylabel("$N_{\\gamma}$ (0.01 ‰ Loss)")
+plt.legend(frameon=False)
 plt.subplot(122)
-for j in range(0,3):
+for j in range(0,1):
     n_matrix = load_matrix(fstrings[j],cutoff)
     #Experiment 6: Dependency on Delta n
     rhos = np.arange(0,0.3, 0.025)
@@ -631,11 +635,11 @@ for j in range(0,3):
     rems = list()
     mons = list()
     for rho in rhos:
-        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(10000, rho, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(30000, rho, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
         isel = 0    
         for i in range(0, len(newinitial1_n_sums)):
             left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
-            if (left > 0.95):
+            if (left > 0.99999):
                 isel = i
         print (rho, isel, newinitial_n_bluephotons_mon[isel])
         measure.append(newinitial_n_bluephotons_mon[isel])
@@ -645,7 +649,7 @@ for j in range(0,3):
         mons.append(newinitial_n_bluephotons_mon)
         
     
-    plt.plot(rhos, measure,marker = "o", color=dcolors[j], markerfacecolor=dcolors[j], markeredgecolor=dcolors[j])
+    plt.plot(rhos, measure,marker = "o", color="tomato", markerfacecolor="tomato", markeredgecolor="red")
 
 
 plt.xlabel("$\\rho$")

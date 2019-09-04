@@ -16,7 +16,7 @@ import math
 from matplotlib.transforms import Transform
 
 #config
-lambdals = [767, 880, 1064, 1535]
+lambdals = [535, 767, 880, 1064]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
@@ -97,11 +97,11 @@ for lambdal in lambdals:
     def toomega(x):
         math.sqrt(x* ((2*math.pi)**4 * hbar**2)/((lambdal * 10**(-9))**4 * m**2))
     
-    ax = plt.gca()
-    secax = ax.secondary_xaxis('top', functions=(topotdepth, toomega))
-    secax.set_xlabel('angle [rad]')
+    #ax = plt.gca()
+    #secax = ax.secondary_xaxis('top', functions=(topotdepth, toomega))
+    #secax.set_xlabel('angle [rad]')
     plt.gca().text(0.04, 0.85, str(lambdal) + " nm", fontsize=10, transform=plt.gca().transAxes)
-    plt.xlabel("$I$ ($mW/cm^{2}$)")
+    plt.xlabel("$I$ ($W/m^{2}$)")
     plt.xlim(10**5,10**9)
     plt.ylabel("$\omega$ (1/s)")
     plt.legend(loc=4, prop={'size': 6})
@@ -144,7 +144,7 @@ for lambdal in lambdals:
             
         
     plt.gca().text(0.04, 0.85, str(lambdal) + " nm", fontsize=10, transform=plt.gca().transAxes)
-    plt.xlabel("$I$ ($mW/cm^{2}$)")
+    plt.xlabel("$I$ ($W/m^{2}$)")
     plt.xlim(10**5,10**9)
     plt.ylabel("$\omega$ (1/s)")
     plt.legend(loc=4, prop={'size': 6})

@@ -96,7 +96,7 @@ for level in levels:
         scatts = list()
         pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
         pot = pot*(-1)
-        omega = math.sqrt(np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+        omega = math.sqrt(2*np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
         if (pot < 0):
             omegas.append(omega)
         else:

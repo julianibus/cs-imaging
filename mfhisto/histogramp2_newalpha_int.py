@@ -491,11 +491,12 @@ def load_matrix(filename, cutoff):
         if (columnsum) > 1:
             totmatrix[:,i] = totmatrix[:,i]/np.sum(totmatrix[:,i])
             columnsum = np.sum(totmatrix[:,i])
-        print (i, columnsum)  
+        #print (i, columnsum)  
     return totmatrix
 #matrix is loaded from heatmap folder -> first calculate totmatrix with heatpot_final.py
 
-def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
+
+def full_time_evolution(No, ramannn, NRaman, NRepump, deltan, initial_state, initial_state_n, n_matrix, repump_mode, repump_deltaf, raman_mode, raman_deltaf):    
     #off_res_ra is now share of not cooled atoms during raman (n-> n)
     tot_probs = list()
     cool_shares = list()
@@ -513,7 +514,7 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
     newinitial_n_bluephotons_mon = list()
     newinitial_n_nocooling_bluephotons_mon = list()
     newinitial_n_nocooling_sums = list()
-    for n in range(0,N):
+    for n in range(0,No):
         #äprint(newinitial)
         newinitial = np.dot(decay_matrix,np.dot(create_excitation_matrix(repump_mode, repump_deltaf, raman_deltaf),np.dot(raman_matrix(raman_mode,raman_deltaf),newinitial)))
         tot_prob = (np.sum(newinitial))
@@ -524,7 +525,11 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
         elif raman_deltaf == -1:
             cool_share = sum4/(sum3 +sum4)
         tot_probs.append(tot_prob)
-        cool_shares.append(cool_share)
+        if n > 100:
+            cool_shares.append(cool_shares[90])
+            cool_share = cool_shares[90]
+        else:
+            cool_shares.append(cool_share)
          
         #1. COoling
         #for d in np.arange(0, NRaman):
@@ -577,46 +582,338 @@ def full_time_evolution(N, ramannn, NRaman, NRepump, deltan, initial_state, init
     return (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums,newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon)
 
 #creat fname list
+sqrt(-1)
 
-wl = 880
-ifilename = "matrices/"+str(wl)+"/intenisties.csv"
-intlist =  np.loadtxt(ifilename,delimiter=",")
-ldfilename = "matrices/"+str(wl)+"latticedepths1.csv"
-ldlist =  np.loadtxt(ifilename,delimiter=",")[:,0]
-for j in range(0, len())
-    cutoff = int(ldlist)+2  #max n, must matxh size of matrix
-    initial_state = np.zeros(len(grounds))
-    initial_state[6] = 1 #(4,0)
-    initial_state_n = np.zeros(cutoff)
-    initial_state_n[0] = 1 #All atoms in ground state
+measure1s = list()
+measure2s = list()
+measure3s = list()
+measure4s = list()
 
-    n_matrix = load_matrix("matrices/"+str(wl)+"/"+ str(j)+"Pathtot.csv",cutoff)
-    
-    #Experiment 6: Dependency on Delta n
-    rhos = np.arange(0,6)
-    measure = list()
+Nte = 10000
+
+wls = [535, 767,880, 1064]
+for wli in range(0, len(wls)):
+    wl = wls[wli]
+    ifilename = "morematrices/"+str(wl)+"/intensities.csv"
+    intlist =  np.loadtxt(ifilename,delimiter=",")
+    ldfilename = "morematrices/"+str(wl)+"/latticedepths1.csv"
+    ldlist =  np.loadtxt(ldfilename,delimiter=",")[:,0]
+    measure1 = list()
     measure2 = list()
-    rems = list()
-    mons = list()
-    for rho in rhos:
-        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(50000, 0.1, 1,1,rho,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+    measure3 = list()
+    measure4 = list()
+    for h in range(0, len(intlist)):
+        cutoff = int(ldlist[h])+2  #max n, must matxh size of matrix
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"Pathtot.csv",cutoff)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.1, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
         isel = 0    
         for i in range(0, len(newinitial1_n_sums)):
             left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
             if (left > 0.95):
                 isel = i
-        print (rho, isel, newinitial_n_bluephotons_mon[isel])
-        measure.append(newinitial_n_bluephotons_mon[isel])
-        measure2.append(isel)
+        print (h, len(intlist), wl, intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure1.append(newinitial_n_bluephotons_mon[isel])
         
-        rems.append(np.asarray(newinitial2_n_sums) + np.asarray(newinitial1_n_sums))
-        mons.append(newinitial_n_bluephotons_mon)
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotE.csv",cutoff)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.1, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure2.append(newinitial_n_bluephotons_mon[isel])
         
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotCDE.csv",cutoff)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.06, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure3.append(newinitial_n_bluephotons_mon[isel])
+        
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.06, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure4.append(newinitial_n_bluephotons_mon[isel]*4)
+        
+    measure1s.append(measure1)
+    measure2s.append(measure2)
+    measure3s.append(measure3)
+    measure4s.append(measure4)
 
-plt.figure(figsize=(6,4))
-plt.plot(rhos, measure,marker = "o", color="blue", markerfacecolor="blue", markeredgecolor="blue")
+plt.figure(figsize=(10,8))
+for wli in range(0, len(wls)):
+    ifilename = "morematrices/"+str(wls[wli])+"/intensities.csv"
+    intlist =  np.loadtxt(ifilename,delimiter=",")
+    plt.subplot(2,2, wli+1)
+    plt.loglog(intlist, measure1s[wli],marker = "o", color="blue", markerfacecolor="blue", markeredgecolor="navy", label="ABCDEF")
+    plt.loglog(intlist, measure2s[wli],marker = "o", color="cornflowerblue", markerfacecolor="cornflowerblue", markeredgecolor="royalblue",label="ABCDF")
+    plt.loglog(intlist, measure3s[wli],marker = "o", color="mediumpurple", markerfacecolor="mediumpurple", markeredgecolor="rebeccapurple",label="ABF")
+    plt.loglog(intlist, 4*np.asarray(measure4s[wli]),marker = "o", color="tomato", markerfacecolor="tomato", markeredgecolor="red",label="R")
+    ax = plt.gca()
+    plt.text(0.75,0.9, str(wls[wli]) + " nm",transform = ax.transAxes)
+    if wli == 0:
+        plt.legend(frameon=False)
+    plt.xlabel("$I\;(W/m^2)$")
+    plt.ylabel("$N_{\gamma}$ (5% Loss)")
+    if wli == 0:
+        plt.xlim(10**5, 10**10)
+    else:
+        plt.xlim(10**5, 10**9)
+    plt.ylim(0.1,250)
 
-plt.xlabel("Raman $\Delta n$")
-plt.ylabel("Blue Photon Count (5% Loss)")
+plt.tight_layout()
+plt.show()
 
 
+
+###################### MIXTURE RED BLUE ############################
+measure1s = list()
+measure2s = list()
+measure3s = list()
+measure4s = list()
+
+wls = [535, 767,880, 1064]
+c = 0
+for wl in wls:
+    ifilename = "morematrices/"+str(wl)+"/intensities.csv"
+    intlist =  np.loadtxt(ifilename,delimiter=",")
+    ldfilename = "morematrices/"+str(wl)+"/latticedepths1.csv"
+    ldlist =  np.loadtxt(ldfilename,delimiter=",")[:,0]
+    
+    
+    measure1 = list()
+    measure2 = list()
+    measure3 = list()
+    measure4 = list()
+    hs = [10,8,8,7]
+    h = hs[c]
+    c+=1    
+    phis = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95]
+    for phi in phis:
+        if phi >= 0.8:
+            Ng = 40000
+        elif phi >= 0.9:
+            Ng = 100000
+        else:
+            Ng = 20000
+        cutoff = int(ldlist[h])+2  #max n, must matxh size of matrix
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix1 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"Pathtot.csv",cutoff)
+        n_matrix2 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        n_matrix = (1-phi)*n_matrix1 + phi*n_matrix2
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Ng, 0.1, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (wl, phi, isel, newinitial_n_bluephotons_mon[isel])
+        measure1.append(newinitial_n_bluephotons_mon[isel]*(1-phi))
+        
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix1 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotE.csv",cutoff)
+        n_matrix2 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        n_matrix = (1-phi)*n_matrix1 + phi*n_matrix2
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Ng, 0.1, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure2.append(newinitial_n_bluephotons_mon[isel]*(1-phi))
+        
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix1 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotCDE.csv",cutoff)
+        n_matrix2 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        n_matrix = (1-phi)*n_matrix1 + phi*n_matrix2
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Ng, 0.06, 1,1,1,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95): 
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure3.append(newinitial_n_bluephotons_mon[isel]*(1-phi))
+        
+    measure1s.append(measure1)
+    measure2s.append(measure2)
+    measure3s.append(measure3)
+    measure4s.append(measure4)
+        
+phis = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95]
+wls = [532, 767,880, 1064]
+plt.figure(figsize=(10,8))
+for wli in range(0, len(wls)):
+    plt.subplot(2,2, wli+1)
+    plt.semilogy(phis, measure1s[wli],marker = "o", color="blue", markerfacecolor="blue", markeredgecolor="navy", label="ABCDEF")
+    plt.semilogy(phis, measure2s[wli],marker = "o", color="cornflowerblue", markerfacecolor="cornflowerblue", markeredgecolor="royalblue",label="ABCDF")
+    plt.semilogy(phis, measure3s[wli],marker = "o", color="mediumpurple", markerfacecolor="mediumpurple", markeredgecolor="rebeccapurple",label="ABF")
+    ax = plt.gca()
+    plt.text(0.75,0.05, str(wls[wli]) + " nm",transform = ax.transAxes)
+    if wli == 0:
+        plt.legend(frameon=False)
+    plt.xlabel("$\phi$")
+    plt.ylabel("$N_{\gamma}$ (5% Loss)")
+    plt.ylim(0.1,120)
+    plt.xlim(0, 0.90)
+
+plt.tight_layout()
+plt.show()
+
+
+#==== FIXED MICTURE RED BLUE; INDEPENDENCE OF INTENSITY ====
+measure1s = list()
+measure2s = list()
+measure3s = list()
+measure4s = list()
+
+Nte = 100000
+phi = 0.9
+wls = [535, 767,880, 1064]
+for wli in range(0, len(wls)):
+    wl = wls[wli]
+    ifilename = "morematrices/"+str(wl)+"/intensities.csv"
+    intlist =  np.loadtxt(ifilename,delimiter=",")
+    ldfilename = "morematrices/"+str(wl)+"/latticedepths1.csv"
+    ldlist =  np.loadtxt(ldfilename,delimiter=",")[:,0]
+    measure1 = list()
+    measure2 = list()
+    measure3 = list()
+    measure4 = list()
+    for h in range(0, len(intlist)):
+        if h >= 8:
+            Nte = 100000
+        elif h == 7:
+            Nte = 60000
+        else:
+            Nte = 20000    
+        cutoff = int(ldlist[h])+2  #max n, must matxh size of matrix
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix1 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"Pathtot.csv",cutoff)
+        n_matrix2 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        n_matrix = (1-phi)*n_matrix1 + phi*n_matrix2
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.1, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (wl, intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure1.append(newinitial_n_bluephotons_mon[isel]*(1-phi))
+        
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix1 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotE.csv",cutoff)
+        n_matrix2 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        n_matrix = (1-phi)*n_matrix1 + phi*n_matrix2
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.1, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure2.append(newinitial_n_bluephotons_mon[isel]*(1-phi))
+        
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix1 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotCDE.csv",cutoff)
+        n_matrix2 = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        n_matrix = (1-phi)*n_matrix1 + phi*n_matrix2
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.06, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel])
+        measure3.append(newinitial_n_bluephotons_mon[isel]*(1-phi))
+        
+        initial_state = np.zeros(len(grounds))
+        initial_state[6] = 1 #(4,0)
+        initial_state_n = np.zeros(cutoff)
+        initial_state_n[0] = 1 #All atoms in ground state
+        n_matrix = load_matrix("morematrices/"+str(wl)+"/"+ str(h)+"PathtotR.csv",cutoff)
+        (tot_probs, cool_shares, newinitial1_n_sums,newinitial2_n_sums,newinitial_n_nocooling_sums, newinitial_n_bluephotons_mon,newinitial_n_nocooling_bluephotons_mon) = full_time_evolution(Nte, 0.06, 1,1,2,initial_state, initial_state_n, n_matrix, "sigma+", 1, "pi", -1)
+        isel = 0    
+        for i in range(0, len(newinitial1_n_sums)):
+            left = newinitial1_n_sums[i] + newinitial2_n_sums[i]
+            if (left > 0.95):
+                isel = i
+        print (intlist[h], isel, newinitial_n_bluephotons_mon[isel]*4)
+        measure4.append(newinitial_n_bluephotons_mon[isel])
+        
+    measure1s.append(measure1)
+    measure2s.append(measure2)
+    measure3s.append(measure3)
+    measure4s.append(measure4)
+
+plt.figure(figsize=(10,8))
+for wli in range(0, len(wls)):
+    ifilename = "morematrices/"+str(wls[wli])+"/intensities.csv"
+    intlist =  np.loadtxt(ifilename,delimiter=",")
+    plt.subplot(2,2, wli+1)
+    if len(measure1s) != 4:
+        measure1s = measure1s[1:5]
+    plt.loglog(intlist, measure1s[wli],marker = "o", color="blue", markerfacecolor="blue", markeredgecolor="navy", label="ABCDEF")
+    plt.loglog(intlist, measure2s[wli],marker = "o", color="cornflowerblue", markerfacecolor="cornflowerblue", markeredgecolor="royalblue",label="ABCDF")
+    plt.loglog(intlist, measure3s[wli],marker = "o", color="mediumpurple", markerfacecolor="mediumpurple", markeredgecolor="rebeccapurple",label="ABF")
+    plt.loglog(intlist, 4*np.asarray(measure4s[wli]),marker = "o", color="tomato", markerfacecolor="tomato", markeredgecolor="red",label="R")
+    ax = plt.gca()
+    plt.text(0.75,0.05, str(wls[wli]) + " nm",transform = ax.transAxes)
+    if wli == 0:
+        plt.legend(frameon=False)
+    plt.xlabel("$I\;(W/m^2)$")
+    plt.ylabel("$N_{\gamma}$ (5% Loss)")
+    plt.ylim(0.1,5000)
+    if wli == 0:
+        plt.xlim(10**5, 10**10)
+    else:
+        plt.xlim(10**5, 10**9)
+
+plt.tight_layout()
+plt.show()
+
+        

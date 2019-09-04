@@ -850,7 +850,7 @@ def make_plot4():
     
     plt.subplot2grid((2,3),(0,2))
     ax = plt.gca()
-    im = ax.imshow(create_excitation_matrix("sigma+", +1), cmap="Reds")
+    im = ax.imshow(create_excitation_matrix("sigma+", +1, -1), cmap="Reds")
     
     vegetables=["F'=2","","","","","F'=3","","","","","","","F'=4","","","","","","","","","F'=5","","","","","","","","","",""]
     farmers=["F=3","","","","","","","F=4","","","","","","","",""]
