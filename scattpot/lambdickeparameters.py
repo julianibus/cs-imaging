@@ -16,7 +16,7 @@ import math
 from matplotlib.transforms import Transform
 
 #config
-lambdals = [535, 767, 880, 1064]
+lambdals = [535, 767, 872.7, 1064]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 

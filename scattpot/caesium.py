@@ -42,6 +42,7 @@ class atom:
                     width = float(row["decaywidth"])
                     wl = float(row["wavelength"])
                     pot_factor = self.qma.PotPrefactor(laser_wl, width, wl * 10**-10)
+                    #print (row["lowerlevel"],row["upperlevel"],pot_factor)
                     scatt_factor = self.qma.ScattPrefactor(laser_wl, width, wl * 10**-10)
                     tot_scatt_factor += scatt_factor
                     tot_pot_factor += pot_factor
