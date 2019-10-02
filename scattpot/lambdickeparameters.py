@@ -87,7 +87,7 @@ for lambdal in lambdals:
             omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
             omegas.append(omega)
             
-        if (pot > 0):
+        if (pot < 0):
             plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c]) ##concert so that xaxis is in mW/cm^2
         else: 
             plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], linestyle = "--") 
@@ -137,7 +137,7 @@ for lambdal in lambdals:
             omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
             #omegas.append(omega)
             pdepths.append(inten*math.fabs(pot)/(hbar**2/(2*m) *(2 * math.pi/(lambdal * 10**(-9)))**2))
-        if (pot > 0):
+        if (pot < 0):
             plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c]) ##concert so that xaxis is in mW/cm^2
         else: 
             plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c], linestyle = "--") 
