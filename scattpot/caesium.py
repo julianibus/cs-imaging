@@ -36,16 +36,36 @@ class atom:
             
             #Resonances upwards
             selection = df.loc[df['lowerlevel'] == level]
-            for index, row in selection.iterrows():
-                if not self.isNaN(row["decaywidth"]):
-                    c+=1
-                    width = float(row["decaywidth"])
-                    wl = float(row["wavelength"])
-                    pot_factor = self.qma.PotPrefactor(laser_wl, width, wl * 10**-10)
-                    #print (row["lowerlevel"],row["upperlevel"],pot_factor)
-                    scatt_factor = self.qma.ScattPrefactor(laser_wl, width, wl * 10**-10)
-                    tot_scatt_factor += scatt_factor
-                    tot_pot_factor += pot_factor
+            if not (level == "6s 2 S 1/2"):
+                for index, row in selection.iterrows():
+                    if not self.isNaN(row["decaywidth"]):
+                        c+=1
+                        width = float(row["decaywidth"])
+                        wl = float(row["wavelength"])
+                        pot_factor = self.qma.PotPrefactor(laser_wl, width, wl * 10**-10)
+                        #print (row["lowerlevel"],row["upperlevel"],pot_factor)
+                        scatt_factor = self.qma.ScattPrefactor(laser_wl, width, wl * 10**-10)
+                        tot_scatt_factor += scatt_factor
+                        tot_pot_factor += pot_factor
+            else:
+                for index, row in selection.iterrows():
+                    potex = 0
+                    if not self.isNaN(row["decaywidth"]):
+                        if not (row["upperlevel"] == "6p 2 P ?1/2") and not (row["upperlevel"] == "6p 2 P ?3/2"):
+                            c+=1
+                            width = float(row["decaywidth"])
+                            wl = float(row["wavelength"])
+                            pot_factor = self.qma.PotPrefactor(laser_wl, width, wl * 10**-10)
+                            #print (row["lowerlevel"],row["upperlevel"],pot_factor)
+                            scatt_factor = self.qma.ScattPrefactor(laser_wl, width, wl * 10**-10)
+                            tot_scatt_factor += scatt_factor
+                            tot_pot_factor += pot_factor
+                        else:
+                            width = float(row["decaywidth"])
+                            pot_factor = self.qma.PotPrefactorAntiMagic(laser_wl, width, mf=3, pol=-1)
+                            tot_pot_factor += pot_factor/2
+                            potex= pot_factor
+                #print("ex", potex/tot_pot_factor)
             #print(level, c, "lower levels")
                     #print(row["lowerlevel"],wl, width, pot_factor)
                     
