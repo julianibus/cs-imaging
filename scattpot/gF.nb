@@ -10,14 +10,82 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[       763,         33]
-NotebookOptionsPosition[       561,         21]
-NotebookOutlinePosition[       903,         36]
-CellTagsIndexPosition[       860,         33]
+NotebookDataLength[      2970,        110]
+NotebookOptionsPosition[      2514,         89]
+NotebookOutlinePosition[      2856,        104]
+CellTagsIndexPosition[      2813,        101]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"F", "=", "3"}], ";", 
+  RowBox[{"Is", " ", "=", " ", 
+   RowBox[{"7", "/", "2"}]}], ";", 
+  RowBox[{"J", "=", 
+   RowBox[{"1", "/", "2"}]}], ";", " ", 
+  RowBox[{"L", " ", "=", " ", "0"}], ";", 
+  RowBox[{"S", "=", 
+   RowBox[{"1", "/", "2"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.779600967525607*^9, 3.7796010376126075`*^9}, {
+  3.7796010770506077`*^9, 3.7796010773546076`*^9}, {3.7796011991716075`*^9, 
+  3.7796012031536074`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"\[LineSeparator]", 
+  RowBox[{"gJ", "=", 
+   RowBox[{"1", "+", "  ", 
+    FractionBox[
+     RowBox[{
+      RowBox[{"J", 
+       RowBox[{"(", 
+        RowBox[{"J", "+", "1"}], ")"}]}], "+", 
+      RowBox[{"S", 
+       RowBox[{"(", 
+        RowBox[{"S", "+", "1"}], ")"}]}], "-", 
+      RowBox[{"L", 
+       RowBox[{"(", 
+        RowBox[{"L", "+", "1"}], ")"}]}]}], 
+     RowBox[{"2", " ", "J", " ", 
+      RowBox[{"(", 
+       RowBox[{"J", "+", "1"}], ")"}]}]]}]}]}]], "Input",
+ CellChangeTimes->{{3.779601109992607*^9, 3.7796011102486076`*^9}}],
+
+Cell[BoxData["2"], "Output",
+ CellChangeTimes->{3.7796011106116076`*^9, 3.7796011637256074`*^9, 
+  3.7796012560826073`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"gF", "=", " ", 
+  RowBox[{"gJ", " ", 
+   FractionBox[
+    RowBox[{
+     RowBox[{"F", 
+      RowBox[{"(", 
+       RowBox[{"F", "+", "1"}], ")"}]}], "-", 
+     RowBox[{"Is", 
+      RowBox[{"(", 
+       RowBox[{"Is", "+", "1"}], ")"}]}], "+", 
+     RowBox[{"J", 
+      RowBox[{"(", 
+       RowBox[{"J", "+", "1"}], ")"}]}]}], 
+    RowBox[{"2", " ", "F", " ", 
+     RowBox[{"(", 
+      RowBox[{"F", "+", "1"}], ")"}]}]]}]}]], "Input",
+ CellChangeTimes->{{3.7796011163576074`*^9, 3.779601139110607*^9}}],
+
+Cell[BoxData[
+ RowBox[{"-", 
+  FractionBox["1", "4"]}]], "Output",
+ CellChangeTimes->{{3.7796011394416075`*^9, 3.7796011654476075`*^9}, 
+   3.7796012583696074`*^9, 3.7796013250436077`*^9}]
+}, Open  ]]
 },
 WindowSize->{759, 835},
 WindowMargins->{{Automatic, 49}, {16, Automatic}},
@@ -35,9 +103,16 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
+Cell[558, 20, 471, 12, 30, "Input"],
+Cell[CellGroupData[{
+Cell[1054, 36, 568, 18, 69, "Input"],
+Cell[1625, 56, 123, 2, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1785, 63, 522, 17, 48, "Input"],
+Cell[2310, 82, 188, 4, 46, "Output"]
+}, Open  ]]
 }
 ]
 *)
-
-(* End of internal cache information *)
 

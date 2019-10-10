@@ -62,7 +62,7 @@ class atom:
                             tot_pot_factor += pot_factor
                         else:
                             width = float(row["decaywidth"])
-                            pot_factor = self.qma.PotPrefactorAntiMagic(laser_wl, width, mf=3, pol=-1)
+                            pot_factor = self.qma.PotPrefactorAntiMagic(laser_wl, width, mf=2, pol=-1)
                             tot_pot_factor += pot_factor/2
                             potex= pot_factor
                 #print("ex", potex/tot_pot_factor)

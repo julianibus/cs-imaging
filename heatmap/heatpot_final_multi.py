@@ -27,7 +27,7 @@ import math
 
 #CONFIGURATION####
  
-lambdal = 880
+lambdal = 888.6
 ### INTENSITY MULTI ######
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)

@@ -18,7 +18,7 @@ width = 32800000
 width2 = 28800000
 qma = qm.QM()
 
-lambdas = np.arange(860e-9,893e-9, 0.1e-9)
+lambdas = np.arange(450e-9,850e-9, 0.1e-9)
 
 pot_factors2 = list()
 for lambdal in lambdas:
@@ -58,7 +58,7 @@ plt.axvline(870.8, color="grey") #sigma plus
 plt.axvline(888.6, color="grey") #sigma minus
 plt.xlabel("$\lambda$ (nm)")
 plt.ylabel("$u_0$ ($m^2 s$)")
-plt.ylim(-0.2e-34, 0.2e-34)
+plt.ylim(-0.2e-34, 0.1e-34)
 
 print(qma.PotPrefactorAntiMagic(870.8e-9, width, mf=3, pol=+1)/qma.PotPrefactorAntiMagic(888.6e-9, width, mf=3, pol=-1))
 print(qma.ScattPrefactorAntiMagic(870.8e-9, width, mf=3, pol=+1)/qma.ScattPrefactorAntiMagic(888.6e-9, width, mf=3, pol=-1))
