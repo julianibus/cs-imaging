@@ -27,7 +27,7 @@ import math
 
 #CONFIGURATION####
  
-lambdal = 888.6
+lambdal = 870.8
 ### INTENSITY MULTI ######
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
@@ -107,15 +107,16 @@ for inten in intensities:
         pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
         omega = math.sqrt(2*np.absolute(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
         if (pot < 0):
-            omegas.append(-omega)
-        else:
             omegas.append(omega)
+        else:
+            omegas.append(-omega)
         scatts.append(scatt*inten)
         latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
         latticedepths1.append(latticedepth1)
     
     
     nmax = int(latticedepths1[0])+2
+    if icount > 8: nmax = nmax - 1
     print(nmax)
         
     for decayi in range(0,len(decays)):

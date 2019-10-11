@@ -18,7 +18,7 @@ width = 32800000
 width2 = 28800000
 qma = qm.QM()
 
-lambdas = np.arange(450e-9,850e-9, 0.1e-9)
+lambdas = np.arange(870e-9,890e-9, 0.1e-9)
 
 pot_factors2 = list()
 for lambdal in lambdas:

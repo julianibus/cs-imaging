@@ -16,7 +16,7 @@ import math
 from matplotlib.transforms import Transform
 
 #config
-lambdals = [535, 767, 888.6, 1064]
+lambdals = [535, 767, 870.8, 1064]
 output = "532.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
@@ -62,8 +62,8 @@ levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2
 columns = ['laser wavelength','level', 'pot', 'scatt']
 newdf = pd.DataFrame(columns=columns)
 
-intensities = 10**(np.linspace(5,10, num=30)) #mW/cm^2 ##LATTICE INTENSITY
-plt.figure(figsize=(7,5))
+intensities = 10**(np.linspace(6,10, num=30)) #mW/cm^2 ##LATTICE INTENSITY
+plt.figure(figsize=(8,6))
 plt.gca().set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
 c3 = 0
 for lambdal in lambdals:
@@ -89,9 +89,9 @@ for lambdal in lambdals:
             omegas.append(omega)
             
         if (pot < 0):
-            plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c]) ##concert so that xaxis is in mW/cm^2
+            plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], lw=1) ##concert so that xaxis is in mW/cm^2
         else: 
-            plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], linestyle = "--") 
+            plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], linestyle = "--", lw=1) 
             
     def topotdepth(x):
         x**2 * (lambdal * 10**(-9))**4 * m**2 /((2*math.pi)**4 * hbar**2)
@@ -103,10 +103,10 @@ for lambdal in lambdals:
     #secax.set_xlabel('angle [rad]')
     labe = str(lambdal) + " nm"
     if lambdal == lambdals[2]:
-        labe = str(lambdal) + " nm  ($\sigma_{-}, m_{F} = 3$)"
+        labe = str(lambdal) + " nm  ($\sigma_{+}, m_{F} = 2$)"
     plt.gca().text(0.04, 0.85, labe, fontsize=10, transform=plt.gca().transAxes)
     plt.xlabel("$I$ ($W/m^{2}$)")
-    plt.xlim(10**5,10**9)
+    plt.xlim(10**6,10**10)
     plt.ylabel("$\omega$ (1/s)")
     plt.legend(loc=3, prop={'size': 6})
     plt.grid(b=True, which='both', color='0.85', linestyle='-')
@@ -114,7 +114,7 @@ plt.tight_layout()
 
 plt.savefig("omegas.png", dpi=300)
 plt.show()
-plt.figure(figsize=(7,5))
+plt.figure(figsize=(8,6))
 plt.gca().set_prop_cycle(color=['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan'])
 c3 = 0
 for lambdal in lambdals:
@@ -141,16 +141,16 @@ for lambdal in lambdals:
             #omegas.append(omega)
             pdepths.append(inten*math.fabs(pot)/(hbar**2/(2*m) *(2 * math.pi/(lambdal * 10**(-9)))**2))
         if (pot < 0):
-            plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c]) ##concert so that xaxis is in mW/cm^2
+            plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c], lw=1) ##concert so that xaxis is in mW/cm^2
         else: 
-            plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c], linestyle = "--") 
+            plt.loglog(intensities, pdepths,"-o", marker=",", label=levellabels[c], linestyle = "--",lw=1) 
             
     labe = str(lambdal) + " nm"
     if lambdal == lambdals[2]:
-        labe = str(lambdal) + " nm  ($\sigma_{-}, m_{F} = 3$)"        
+        labe = str(lambdal) + " nm  ($\sigma_{+}, m_{F} = 2$)"        
     plt.gca().text(0.04, 0.85, labe, fontsize=10, transform=plt.gca().transAxes)
     plt.xlabel("$I$ ($W/m^{2}$)")
-    plt.xlim(10**5,10**9)
+    plt.xlim(10**6,10**10)
     plt.ylabel("$\omega$ (1/s)")
     plt.legend(loc=3, prop={'size': 6})
     plt.grid(b=True, which='both', color='0.85', linestyle='-')
@@ -178,7 +178,7 @@ decays = [l21, l23, l35, l41, l64, l51, l65, l75, l27, l26, l34]
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 decaylevels = ["6s 2 S 1/2", "7s 2 S 1/2","6p 2 P ?3/2", "6s 2 S 1/2", "6p 2 P ?1/2","6s 2 S 1/2", "6p 2 P ?3/2", "6p 2 P ?3/2", "5d 2 D 5/2","5d 2 D 3/2", "6p 2 P ?1/2"]
 
-plt.figure(figsize=(7,5))
+plt.figure(figsize=(8,6))
 c3 = 0
 for lambdal in lambdals:
     c3+=1
@@ -199,15 +199,15 @@ for lambdal in lambdals:
             lambdicke = math.sqrt(ELatRec /(hbar * omega))
             lambdickes.append(lambdicke)
             
-        plt.loglog(intensities, lambdickes,"-o", marker=",", label=decaylabels[decayi]) ##concert so that xaxis is in mW/cm^2
+        plt.loglog(intensities, lambdickes,"-o", marker=",", label=decaylabels[decayi], lw=1) ##concert so that xaxis is in mW/cm^2
     
     labe = str(lambdal) + " nm"
     if lambdal == lambdals[2]:
-        labe = str(lambdal) + " nm  ($\sigma_{-}, m_{F} = 2$)"
-    plt.gca().text(0.05, 0.85, labe, fontsize=10, transform=plt.gca().transAxes)
+        labe = str(lambdal) + " nm  ($\sigma_{+}, m_{F} = 2$)"
+    plt.gca().text(0.05, 0.05, labe, fontsize=10, transform=plt.gca().transAxes)
     plt.xlabel("$I$ ($W/m^{2}$)")
-    plt.xlim(10**5,10**9)
-    plt.ylim(2*10**-2,10**1)
+    plt.xlim(10**6,10**10)
+    plt.ylim(2*10**-3,10**0)
     plt.ylabel("$\eta$")
     if lambdal == lambdals[2]:
         plt.legend(prop={'size': 8},loc='upper center', bbox_to_anchor=(1.15, -0.4),ncol=6)

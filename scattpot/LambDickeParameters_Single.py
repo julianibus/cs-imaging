@@ -7,8 +7,8 @@ import pandas as pd
 import math
 
 #config
-lambdals = [532, 755, 880, 1064, 1535]
-output = "532.csv"
+lambdals = [767]
+output = "767.csv"
 m = 132.905 * 1.660539* (10**(-27)) #Wikipedkia
 
 
@@ -46,8 +46,8 @@ decays = [l21, l23, l35, l41, l64, l51, l65, l75, l27, l26, l34]
 levels = ["6s 2 S 1/2", "7p 2 P ?3/2", "7s 2 S 1/2", "6p 2 P ?1/2", "6p 2 P ?3/2", "5d 2 D 3/2", "5d 2 D 5/2"]
 decaylevels = ["6s 2 S 1/2", "7s 2 S 1/2","6p 2 P ?3/2", "6s 2 S 1/2", "6p 2 P ?1/2","6s 2 S 1/2", "6p 2 P ?3/2", "6p 2 P ?3/2", "5d 2 D 5/2","5d 2 D 3/2", "6p 2 P ?1/2"]
 
-lambdal = 532
-inten = 10**7
+lambdal = 880
+inten = 2*10**8
 
 omegas = list()
 lambdickes = list()
@@ -59,7 +59,7 @@ for level in levels:
     scatts = list()
     pot, scatt = cs.GetFactors(lambdal*10**-9, level, "transitions_complemented.csv")
 
-    omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+    omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
     omegas.append(omega)
     
     latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
@@ -70,7 +70,7 @@ for level in levels:
     
 for decayi in range(0,len(decays)):
     pot, scatt = cs.GetFactors(lambdal*10**-9, decaylevels[decayi], "transitions_complemented.csv")
-    omega = math.sqrt(math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
+    omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
     #if (pot < 0): omega = omega*(-1) #dont negate here as sign not important for calculating the lamb dicke parameter
     ELatRec = ((hbar*(2*math.pi)/(decays[decayi]))**2)/(2*m)
     lambdicke = math.sqrt(ELatRec /(hbar * omega))
@@ -78,7 +78,5 @@ for decayi in range(0,len(decays)):
     latticedepth2 = (math.fabs(pot)*inten)/(ELatRec)
     latticedepths2.append(latticedepth2)
             
-print(omegas)
-print(lambdickes)
 print(latticedepths1)
 print(latticedepths2)

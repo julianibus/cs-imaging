@@ -27,7 +27,7 @@ import math
 
 #CONFIGURATION####
 nmax = 25
-lambdal = 880
+lambdal = 888.6
 inten = 3*10**8 
 xstep = 0.25  * 10**(-8)
 x = np.arange(-0.25*10**(-6), +0.25*10**(-6), xstep)
