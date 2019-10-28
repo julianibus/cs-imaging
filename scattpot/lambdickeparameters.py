@@ -71,6 +71,8 @@ for lambdal in lambdals:
     plt.subplot(2,2,c3)
     print(lambdal)
     c = -1
+    latticedepths1 = list()
+    omegass = list()
     for level in levels:
         c = c + 1
         #098765', '#000009'
@@ -87,12 +89,17 @@ for lambdal in lambdals:
             inten = inten
             omega = math.sqrt(2*math.fabs(pot)*inten/m)*2 *math.pi /(lambdal * 10**(-9))
             omegas.append(omega)
+        latticedepth1 = (math.fabs(pot)*inten)/(hbar*omega)
+        latticedepths1.append(latticedepth1)
+        omegass.append(omega)
             
         if (pot < 0):
             plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], lw=1) ##concert so that xaxis is in mW/cm^2
         else: 
             plt.loglog(intensities, omegas,"-o", marker=",", label=levellabels[c], linestyle = "--", lw=1) 
-            
+    print(latticedepths1)
+    print(omegass)
+    
     def topotdepth(x):
         x**2 * (lambdal * 10**(-9))**4 * m**2 /((2*math.pi)**4 * hbar**2)
     def toomega(x):
